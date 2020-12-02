@@ -21,6 +21,31 @@ type object struct {
 	f          generalFunc
 }
 
+func (o *object) equals(other *object) bool {
+	if o.objectType != other.objectType {
+		return false
+	}
+	switch o.objectType {
+	case number:
+		return o.num == other.num
+	case boolean:
+		return o.b == other.b
+	case symbol:
+		return o.str == other.str
+	case cons:
+		return o.pair[0].equals(other.pair[0]) && o.pair[1].equals(other.pair[1])
+	case null:
+		return true
+	case void:
+		return true
+	case function:
+		return o == other
+	case err:
+		return o.str == other.str
+	}
+	panic("object type not implemented")
+}
+
 func (o *object) stringStripPars() string {
 	switch o.objectType {
 	case cons:

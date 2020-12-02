@@ -175,6 +175,12 @@ func init() {
 	for k, v := range fourth {
 		defaultEnv["c"+k+"r"] = newFunctionObject(composeFuncs(v...))
 	}
+
+	defaultEnv["equal?"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			o1, o2 := objects[0], objects[1]
+			return newBooleanObject(o1.equals(o2))
+		}))
 }
 
 func list(objects []*object) *object {
