@@ -39,6 +39,10 @@ func (o *object) String() string {
 	panic("object type not implemented")
 }
 
+func (o *object) isTruthy() bool {
+	return o.objectType != boolean || o.b
+}
+
 type objectType int
 
 const (

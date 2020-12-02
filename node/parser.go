@@ -15,6 +15,7 @@ var (
 		"lambda",
 		"and",
 		"or",
+		"if",
 	}
 	numRegexp = regexp.MustCompile("^-?[0-9]+?(\\.[0-9]*)?$")
 )

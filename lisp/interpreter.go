@@ -59,30 +59,38 @@ func eval(n *node.Node, env env) *object {
 		switch n.Children[0].Str {
 		case "and":
 			// Short circuit evaluation
+			res := newBooleanObject(true)
 			for _, child := range n.Children[1:] {
-				res := eval(child, env)
-				if res.objectType != boolean {
-					// Treat non-boolean result as truthy value
-					continue
-				}
-				if !res.b {
+				res = eval(child, env)
+				if !res.isTruthy() {
 					return newBooleanObject(false)
 				}
 			}
-			return newBooleanObject(true)
+			return res
 		case "or":
 			// Short circuit evaluation
 			for _, child := range n.Children[1:] {
 				res := eval(child, env)
-				if res.objectType != boolean {
-					// Treat non-boolean result as truthy value
+				if res.isTruthy() {
 					return res
-				}
-				if res.b {
-					return newBooleanObject(true)
 				}
 			}
 			return newBooleanObject(false)
+		case "if":
+			if len(n.Children) != 3 && len(n.Children) != 4 {
+				return newErrorObject(fmt.Sprintf("bad syntax: if needs 2 or 3 arguments, but got %v", len(n.Children)-1))
+			}
+
+			res := eval(n.Children[1], env)
+			if res.isTruthy() {
+				return eval(n.Children[2], env)
+			} else {
+				if len(n.Children) == 4 {
+					return eval(n.Children[3], env)
+				} else {
+					return voidObject
+				}
+			}
 		case "define":
 			if len(n.Children) != 3 {
 				return newErrorObject(fmt.Sprintf("bad syntax: define takes exactly 2 arguments, but got %v", len(n.Children)-1))

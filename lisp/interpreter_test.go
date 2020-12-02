@@ -124,14 +124,33 @@ func TestInterpreter(t *testing.T) {
 		{
 			name: "short circuit",
 			inputs: []string{
+				"(and)",
+				"(or)",
+				"(and 3 4)",
 				"(and (= 5 0) (/ 5 0))",
 				"(or #f #t)",
 				"(or #f 5)",
 			},
 			outputs: []string{
+				"#t\n",
+				"#f\n",
+				"4\n",
 				"#f\n",
 				"#t\n",
 				"5\n",
+			},
+		},
+		{
+			name: "if",
+			inputs: []string{
+				"(define (my-div x y) (if (= y 0) 0 (/ x y)))",
+				"(my-div 10 5)",
+				"(my-div 10 0)",
+			},
+			outputs: []string{
+				"",
+				"2\n",
+				"0\n",
 			},
 		},
 	}
