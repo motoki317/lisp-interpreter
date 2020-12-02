@@ -153,6 +153,24 @@ func TestInterpreter(t *testing.T) {
 				"0\n",
 			},
 		},
+		{
+			name: "cond",
+			inputs: []string{
+				"(define (sign x)" +
+					"(cond ((> x 0) 1)" +
+					"      ((= x 0) 0)" +
+					"      (else -1)))",
+				"(sign 5)",
+				"(sign 0)",
+				"(sign -100)",
+			},
+			outputs: []string{
+				"",
+				"1\n",
+				"0\n",
+				"-1\n",
+			},
+		},
 	}
 	const waitOut = "> "
 	for _, tt := range tests {

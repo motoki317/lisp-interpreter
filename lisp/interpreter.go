@@ -91,6 +91,26 @@ func eval(n *node.Node, env env) *object {
 					return voidObject
 				}
 			}
+		case "cond":
+			if len(n.Children) == 1 {
+				return newErrorObject("bad syntax: cond needs at least 1 argument, but got 0")
+			}
+
+			for _, branch := range n.Children[1:] {
+				if branch.Type != node.Branch || len(branch.Children) == 0 {
+					return newErrorObject("bad syntax: cond bad branch")
+				}
+
+				test := branch.Children[0]
+				if (test.Type == node.Keyword && test.Str == "else") || eval(test, env).isTruthy() {
+					res := voidObject
+					for _, child := range branch.Children[1:] {
+						res = eval(child, env)
+					}
+					return res
+				}
+			}
+			return voidObject
 		case "define":
 			if len(n.Children) != 3 {
 				return newErrorObject(fmt.Sprintf("bad syntax: define takes exactly 2 arguments, but got %v", len(n.Children)-1))
