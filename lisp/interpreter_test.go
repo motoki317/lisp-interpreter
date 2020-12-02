@@ -251,6 +251,25 @@ func TestInterpreter(t *testing.T) {
 				"50\n",
 			},
 		},
+		{
+			name: "set-car, cdr",
+			inputs: []string{
+				"(define p (cons 1 2))",
+				"p",
+				"(set-car! p 3)",
+				"p",
+				"(set-cdr! p 4)",
+				"p",
+			},
+			outputs: []string{
+				"",
+				"(1 . 2)\n",
+				"",
+				"(3 . 2)\n",
+				"",
+				"(3 . 4)\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

@@ -176,6 +176,27 @@ func init() {
 		defaultEnv["c"+k+"r"] = newFunctionObject(composeFuncs(v...))
 	}
 
+	defaultEnv["set-car!"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			pair := objects[0]
+			value := objects[1]
+			if pair.objectType != cons {
+				return newErrorObject(fmt.Sprintf("set-car!: expected 1st argument to be pair, but got %v", pair.objectType))
+			}
+			pair.pair[0] = value
+			return voidObject
+		}))
+	defaultEnv["set-cdr!"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			pair := objects[0]
+			value := objects[1]
+			if pair.objectType != cons {
+				return newErrorObject(fmt.Sprintf("set-cdr!: expected 1st argument to be pair, but got %v", pair.objectType))
+			}
+			pair.pair[1] = value
+			return voidObject
+		}))
+
 	defaultEnv["equal?"] = newFunctionObject(
 		makeBinary(func(objects []*object) *object {
 			o1, o2 := objects[0], objects[1]
