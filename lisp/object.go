@@ -53,6 +53,15 @@ func (o *object) isList() bool {
 	return o.objectType == cons && o.pair[1].isList()
 }
 
+func (o *object) listElements() []*object {
+	if o == nullObject {
+		return []*object{}
+	}
+	first := o.pair[0]
+	rest := o.pair[1].listElements()
+	return append([]*object{first}, rest...)
+}
+
 func (o *object) stringStripPars() string {
 	switch o.objectType {
 	case cons:

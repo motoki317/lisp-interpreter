@@ -199,9 +199,46 @@ func init() {
 		makeUnary(func(objects []*object) *object {
 			return newBooleanObject(objects[0].objectType == boolean)
 		}))
+	defaultEnv["symbol?"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			return newBooleanObject(objects[0].objectType == symbol)
+		}))
 	defaultEnv["list?"] = newFunctionObject(
 		makeUnary(func(objects []*object) *object {
 			return newBooleanObject(objects[0].isList())
+		}))
+	defaultEnv["null?"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			return newBooleanObject(objects[0] == nullObject)
+		}))
+
+	defaultEnv["apply"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			f := objects[0]
+			args := objects[1]
+			if f.objectType != function {
+				return newErrorObject(fmt.Sprintf("expected 1st argument of apply to be a function, but got %v", f))
+			}
+			if !args.isList() {
+				return newErrorObject(fmt.Sprintf("expected 2nd argument of apply to be a list, but got %v", args))
+			}
+			return f.f(args.listElements())
+		}))
+	defaultEnv["map"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			f := objects[0]
+			lst := objects[1]
+			if f.objectType != function {
+				return newErrorObject(fmt.Sprintf("expected 1st argument of map to be a function, but got %v", f))
+			}
+			if !lst.isList() {
+				return newErrorObject(fmt.Sprintf("expected 2nd argument of map to be a list, but got %v", lst))
+			}
+			elements := lst.listElements()
+			for i, elt := range elements {
+				elements[i] = f.f([]*object{elt})
+			}
+			return list(elements)
 		}))
 }
 
