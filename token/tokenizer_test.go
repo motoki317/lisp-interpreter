@@ -81,6 +81,15 @@ func TestTokenizer(t *testing.T) {
 				{Type: Word, String: "1"},
 			},
 		},
+		{
+			name:   "string",
+			string: "po \"po po\" po",
+			want: []Token{
+				{Type: Word, String: "po"},
+				{Type: Word, String: "\"po po\""},
+				{Type: Word, String: "po"},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

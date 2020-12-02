@@ -3,6 +3,7 @@ package lisp
 import (
 	"fmt"
 	"math"
+	"strings"
 )
 
 var defaultEnv map[string]*object
@@ -232,6 +233,10 @@ func init() {
 		makeUnary(func(objects []*object) *object {
 			return newBooleanObject(objects[0] == nullObject)
 		}))
+	defaultEnv["string?"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			return newBooleanObject(objects[0].objectType == str)
+		}))
 
 	defaultEnv["apply"] = newFunctionObject(
 		makeBinary(func(objects []*object) *object {
@@ -265,6 +270,27 @@ func init() {
 	defaultEnv["begin"] = newFunctionObject(func(objects []*object) *object {
 		return objects[len(objects)-1]
 	})
+
+	defaultEnv["symbol->string"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			o := objects[0]
+			if o.objectType != symbol {
+				return newErrorObject(fmt.Sprintf("expected 1st argument of symbol->string to be symbol, but got %v", o.objectType))
+			}
+			return newStringObject(o.str)
+		}))
+	defaultEnv["string->symbol"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			o := objects[0]
+			if o.objectType != str {
+				return newErrorObject(fmt.Sprintf("expected 1st argument of string->symbol to be string, but got %v", o.objectType))
+			}
+			return newSymbolObject(o.str)
+		}))
+	defaultEnv["string-append"] = newFunctionObject(
+		makeStrings(func(input []string) *object {
+			return newStringObject(strings.Join(input, ""))
+		}))
 }
 
 func list(objects []*object) *object {
@@ -336,5 +362,19 @@ func makeBooleans(next func(input []bool) *object) generalFunc {
 			booleans[i] = obj.b
 		}
 		return next(booleans)
+	}
+}
+
+func makeStrings(next func(input []string) *object) generalFunc {
+	return func(objects []*object) *object {
+		inputs := make([]string, len(objects))
+		for i, obj := range objects {
+			if obj.objectType != str {
+				return newErrorObject(fmt.Sprintf(
+					"expected %v-th argument to be str, but got %v", i, obj))
+			}
+			inputs[i] = obj.str
+		}
+		return next(inputs)
 	}
 }

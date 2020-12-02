@@ -21,6 +21,8 @@ func (n *Node) equals(other *Node) bool {
 		return n.Num == other.Num
 	case Boolean:
 		return n.B == other.B
+	case String:
+		return n.Str == other.Str
 	case Branch:
 		if len(n.Children) != len(other.Children) {
 			return false
@@ -126,6 +128,13 @@ func TestParser(t *testing.T) {
 						{Type: Number, Num: 2},
 					}},
 				}},
+			},
+		},
+		{
+			name:   "string",
+			string: "\"po po\"",
+			want: []*Node{
+				{Type: String, Str: "po po"},
 			},
 		},
 	}

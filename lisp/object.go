@@ -32,6 +32,8 @@ func (o *object) equals(other *object) bool {
 		return o.b == other.b
 	case symbol:
 		return o.str == other.str
+	case str:
+		return o.str == other.str
 	case cons:
 		return o.pair[0].equals(other.pair[0]) && o.pair[1].equals(other.pair[1])
 	case null:
@@ -90,6 +92,8 @@ func (o *object) String() string {
 		}
 	case symbol:
 		return o.str
+	case str:
+		return fmt.Sprintf("\"%v\"", o.str)
 	case cons:
 		return "(" + o.stringStripPars() + ")"
 	case null:
@@ -114,6 +118,7 @@ const (
 	number objectType = iota
 	boolean
 	symbol
+	str
 	cons
 	null
 	void
@@ -129,6 +134,8 @@ func (t objectType) String() string {
 		return "boolean"
 	case symbol:
 		return "symbol"
+	case str:
+		return "string"
 	case cons:
 		return "cons"
 	case null:
@@ -161,6 +168,13 @@ func newSymbolObject(str string) *object {
 	return &object{
 		objectType: symbol,
 		str:        str,
+	}
+}
+
+func newStringObject(s string) *object {
+	return &object{
+		objectType: str,
+		str:        s,
 	}
 }
 

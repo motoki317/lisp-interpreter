@@ -130,6 +130,14 @@ func (p *Parser) Next() (*Node, error) {
 			}, nil
 		}
 
+		// String
+		if s[0] == '"' && s[len(s)-1] == '"' {
+			return &Node{
+				Type: String,
+				Str:  s[1 : len(s)-1],
+			}, nil
+		}
+
 		// Other words -> identifier
 		return &Node{
 			Type: Identifier,

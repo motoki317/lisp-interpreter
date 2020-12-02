@@ -26,6 +26,8 @@ const (
 	Number
 	// Boolean Booleans
 	Boolean
+	// String String constant
+	String
 )
 
 func (n Node) String() string {
@@ -48,6 +50,8 @@ func (n Node) String() string {
 		} else {
 			return "#f"
 		}
+	case String:
+		return fmt.Sprintf("\"%v\"", n.Str)
 	}
 	return fmt.Sprintf("unknown_type: %v", n.Type)
 }

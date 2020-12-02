@@ -149,6 +149,8 @@ func evalQuote(n *node.Node) *object {
 		return newNumberObject(n.Num)
 	case node.Boolean:
 		return newBooleanObject(n.B)
+	case node.String:
+		return newStringObject(n.Str)
 	case node.Identifier:
 		return newSymbolObject(n.Str)
 	case node.Keyword:
@@ -259,6 +261,8 @@ func eval(n *node.Node, env env) *object {
 		return newNumberObject(n.Num)
 	case node.Boolean:
 		return newBooleanObject(n.B)
+	case node.String:
+		return newStringObject(n.Str)
 	}
 	if n.Type != node.Branch {
 		panic("node type not implemented")
