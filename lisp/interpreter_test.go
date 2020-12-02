@@ -81,6 +81,21 @@ func TestInterpreter(t *testing.T) {
 				"10\n",
 			},
 		},
+		{
+			name: "define lambda (syntax sugar)",
+			inputs: []string{
+				"(define (double x) (* x 2))",
+				"double",
+				"(double 3)",
+				"(double 5)",
+			},
+			outputs: []string{
+				"",
+				"<function>\n",
+				"6\n",
+				"10\n",
+			},
+		},
 	}
 	const waitOut = "> "
 	for _, tt := range tests {

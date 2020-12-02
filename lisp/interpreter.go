@@ -50,17 +50,44 @@ func eval(n *node.Node, env env) *object {
 
 	// assert n.Type == node.Branch
 	if len(n.Children) == 0 {
-		return newErrorObject("empty sentence (\"()\") cannot be evaluated")
+		return newErrorObject("bad syntax: empty sentence (\"()\") cannot be evaluated")
 	}
 
 	if n.Children[0].Type == node.Keyword {
 		switch n.Children[0].Str {
 		case "define":
 			if len(n.Children) != 3 {
-				return newErrorObject(fmt.Sprintf("define takes exactly 2 arguments, but got %v", len(n.Children)-1))
+				return newErrorObject(fmt.Sprintf("bad syntax: define takes exactly 2 arguments, but got %v", len(n.Children)-1))
 			}
+
+			// define syntax sugar
+			// (define (func-name arg1 arg2) ...)
+			// = (define func-name (lambda (arg1 arg2) ...))
+			if n.Children[1].Type == node.Branch {
+				if len(n.Children[1].Children) == 0 || n.Children[1].Children[0].Type != node.Identifier {
+					return newErrorObject("bad syntax: function definition requires function name")
+				}
+
+				// Rewrite AST and eval again
+				funcName := n.Children[1].Children[0]
+				argNames := n.Children[1].Children[1:]
+				sentences := n.Children[2:]
+
+				lambda := append([]*node.Node{
+					{Type: node.Keyword, Str: "lambda"},
+					{Type: node.Branch, Children: argNames},
+				}, sentences...)
+				return eval(&node.Node{Type: node.Branch, Children: []*node.Node{
+					{Type: node.Keyword, Str: "define"},
+					funcName,
+					{Type: node.Branch, Children: lambda},
+				},
+				}, env)
+			}
+
+			// Normal define
 			if n.Children[1].Type != node.Identifier {
-				return newErrorObject(fmt.Sprintf("expected 1st argument of define to be identifier, but got %v", n.Children[1]))
+				return newErrorObject(fmt.Sprintf("bad syntax: expected 1st argument of define to be identifier, but got %v", n.Children[1]))
 			}
 
 			key := n.Children[1].Str
@@ -69,16 +96,16 @@ func eval(n *node.Node, env env) *object {
 			return voidObject
 		case "lambda":
 			if len(n.Children) < 3 {
-				return newErrorObject(fmt.Sprintf("lambda takes 2 or more arguments, but got %v", len(n.Children)-1))
+				return newErrorObject(fmt.Sprintf("bad syntax: lambda takes 2 or more arguments, but got %v", len(n.Children)-1))
 			}
 			if n.Children[1].Type != node.Branch {
-				return newErrorObject(fmt.Sprintf("1st argument of lambda needs to be a list of arguments, but got %v", n.Children[1]))
+				return newErrorObject(fmt.Sprintf("bad syntax: 1st argument of lambda needs to be a list of arguments, but got %v", n.Children[1]))
 			}
 
 			argNames := make([]string, len(n.Children[1].Children))
 			for i, arg := range n.Children[1].Children {
 				if arg.Type != node.Identifier {
-					return newErrorObject(fmt.Sprintf("expected %v-th argument of lambda function to be identifier, but got %v", i, arg.Type))
+					return newErrorObject(fmt.Sprintf("bad syntax: expected %v-th argument of lambda function to be identifier, but got %v", i, arg.Type))
 				}
 				argNames[i] = arg.Str
 			}
