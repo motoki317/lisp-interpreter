@@ -128,10 +128,6 @@ func evalCond(n *node.Node, env env) *object {
 }
 
 func evalDefine(n *node.Node, env env) *object {
-	if len(n.Children) != 3 {
-		return newErrorObject(fmt.Sprintf("bad syntax: define takes exactly 2 arguments, but got %v", len(n.Children)-1))
-	}
-
 	// define syntax sugar
 	// (define (func-name arg1 arg2) ...)
 	// = (define func-name (lambda (arg1 arg2) ...))
@@ -158,6 +154,10 @@ func evalDefine(n *node.Node, env env) *object {
 	}
 
 	// Normal define
+	if len(n.Children) != 3 {
+		return newErrorObject(fmt.Sprintf("bad syntax: define takes exactly 2 arguments, but got %v", len(n.Children)-1))
+	}
+
 	if n.Children[1].Type != node.Identifier {
 		return newErrorObject(fmt.Sprintf("bad syntax: expected 1st argument of define to be identifier, but got %v", n.Children[1]))
 	}
