@@ -18,12 +18,35 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
 	for k, v := range defaultEnv {
 		global[k] = v
 	}
-	return &Interpreter{
+	i := &Interpreter{
 		p:         p,
 		out:       out,
 		globalEnv: global,
 		cuiMode:   cuiMode,
 	}
+	global["display"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			i.printf("%v\n", objects[0])
+			return voidObject
+		}))
+	global["read"] = newFunctionObject(
+		makeNullary(func(objects []*object) *object {
+			n, err := i.p.Next()
+			if err == node.EOF {
+				return newErrorObject("end of input")
+			}
+			if err != nil {
+				return newErrorObject(fmt.Sprintf("an error occurred while reading from input: %v", err))
+			}
+			return eval(&node.Node{
+				Type: node.Branch,
+				Children: []*node.Node{
+					{Type: node.Keyword, Str: "quote"},
+					n,
+				},
+			}, newGlobalEnv(i.globalEnv))
+		}))
+	return i
 }
 
 func (i *Interpreter) printf(format string, a ...interface{}) {

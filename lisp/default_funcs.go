@@ -284,6 +284,15 @@ func composeFuncs(funcs ...generalFunc) generalFunc {
 	}
 }
 
+func makeNullary(next generalFunc) generalFunc {
+	return func(objects []*object) *object {
+		if len(objects) != 0 {
+			return newErrorObject(fmt.Sprintf("expected length of argument to be 0, but got %v", len(objects)))
+		}
+		return next(objects)
+	}
+}
+
 func makeUnary(next generalFunc) generalFunc {
 	return func(objects []*object) *object {
 		if len(objects) != 1 {
