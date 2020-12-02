@@ -46,6 +46,13 @@ func (o *object) equals(other *object) bool {
 	panic("object type not implemented")
 }
 
+func (o *object) isList() bool {
+	if o == nullObject {
+		return true
+	}
+	return o.objectType == cons && o.pair[1].isList()
+}
+
 func (o *object) stringStripPars() string {
 	switch o.objectType {
 	case cons:

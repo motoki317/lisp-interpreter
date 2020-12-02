@@ -181,6 +181,28 @@ func init() {
 			o1, o2 := objects[0], objects[1]
 			return newBooleanObject(o1.equals(o2))
 		}))
+	defaultEnv["eq?"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			o1, o2 := objects[0], objects[1]
+			return newBooleanObject(o1.equals(o2))
+		}))
+	defaultEnv["eqv?"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			o1, o2 := objects[0], objects[1]
+			return newBooleanObject(o1.equals(o2))
+		}))
+	defaultEnv["number?"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			return newBooleanObject(objects[0].objectType == number)
+		}))
+	defaultEnv["boolean?"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			return newBooleanObject(objects[0].objectType == boolean)
+		}))
+	defaultEnv["list?"] = newFunctionObject(
+		makeUnary(func(objects []*object) *object {
+			return newBooleanObject(objects[0].isList())
+		}))
 }
 
 func list(objects []*object) *object {
