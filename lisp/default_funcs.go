@@ -7,19 +7,16 @@ var defaultFuncs map[string]*object
 func init() {
 	defaultFuncs = make(map[string]*object)
 
-	defaultFuncs["+"] = &object{
-		objectType: function,
-		f: makeNumbersVariadicFunc(func(input []float64) *object {
+	defaultFuncs["+"] = newFunctionObject(
+		makeNumbersVariadicFunc(func(input []float64) *object {
 			var res float64
 			for _, in := range input {
 				res += in
 			}
 			return newNumberObject(res)
-		}),
-	}
-	defaultFuncs["-"] = &object{
-		objectType: function,
-		f: makeNumbersVariadicFunc(func(input []float64) *object {
+		}))
+	defaultFuncs["-"] = newFunctionObject(
+		makeNumbersVariadicFunc(func(input []float64) *object {
 			if len(input) == 0 {
 				return newErrorObject("expected at least one argument")
 			}
@@ -28,21 +25,17 @@ func init() {
 				res -= in
 			}
 			return newNumberObject(res)
-		}),
-	}
-	defaultFuncs["*"] = &object{
-		objectType: function,
-		f: makeNumbersVariadicFunc(func(input []float64) *object {
+		}))
+	defaultFuncs["*"] = newFunctionObject(
+		makeNumbersVariadicFunc(func(input []float64) *object {
 			var res float64 = 1
 			for _, in := range input {
 				res *= in
 			}
 			return newNumberObject(res)
-		}),
-	}
-	defaultFuncs["/"] = &object{
-		objectType: function,
-		f: makeNumbersVariadicFunc(func(input []float64) *object {
+		}))
+	defaultFuncs["/"] = newFunctionObject(
+		makeNumbersVariadicFunc(func(input []float64) *object {
 			if len(input) == 0 {
 				return newErrorObject("expected at least one argument")
 			}
@@ -54,8 +47,7 @@ func init() {
 				res /= in
 			}
 			return newNumberObject(res)
-		}),
-	}
+		}))
 }
 
 func makeNumbersVariadicFunc(next func(input []float64) *object) generalFunc {

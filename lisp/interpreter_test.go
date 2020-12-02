@@ -55,6 +55,32 @@ func TestInterpreter(t *testing.T) {
 				"20\n",
 			},
 		},
+		{
+			name: "basic lambda",
+			inputs: []string{
+				"(lambda (x) (* x 2))",
+				"((lambda (x) (* x 2)) 2)",
+			},
+			outputs: []string{
+				"<function>\n",
+				"4\n",
+			},
+		},
+		{
+			name: "define lambda",
+			inputs: []string{
+				"(define double (lambda (x) (* x 2)))",
+				"double",
+				"(double 3)",
+				"(double 5)",
+			},
+			outputs: []string{
+				"",
+				"<function>\n",
+				"6\n",
+				"10\n",
+			},
+		},
 	}
 	const waitOut = "> "
 	for _, tt := range tests {

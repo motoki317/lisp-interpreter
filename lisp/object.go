@@ -62,6 +62,13 @@ func newNumberObject(num float64) *object {
 	}
 }
 
+func newFunctionObject(f generalFunc) *object {
+	return &object{
+		objectType: function,
+		f:          f,
+	}
+}
+
 func newErrorObject(msg string) *object {
 	return &object{
 		objectType: err,

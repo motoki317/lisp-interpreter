@@ -9,18 +9,18 @@ import (
 type Interpreter struct {
 	p         *node.Parser
 	out       io.Writer
-	globalEnv map[string]*object
+	globalEnv frame
 }
 
 func NewInterpreter(p *node.Parser, out io.Writer) *Interpreter {
-	globalEnv := make(map[string]*object)
-	for str, obj := range defaultFuncs {
-		globalEnv[str] = obj
+	global := emptyFrame()
+	for k, v := range defaultFuncs {
+		global[k] = v
 	}
 	return &Interpreter{
 		p:         p,
 		out:       out,
-		globalEnv: globalEnv,
+		globalEnv: global,
 	}
 }
 
@@ -31,12 +31,12 @@ func (i *Interpreter) printf(format string, a ...interface{}) {
 	}
 }
 
-func (i *Interpreter) eval(n *node.Node) *object {
+func eval(n *node.Node, env env) *object {
 	switch n.Type {
 	case node.Keyword:
 		return newErrorObject("unexpected keyword")
 	case node.Identifier:
-		if obj, ok := i.globalEnv[n.Str]; ok {
+		if obj, ok := env.lookup(n.Str); ok {
 			return obj
 		} else {
 			return newErrorObject(fmt.Sprintf("unbound identifier: %v", n.Str))
@@ -56,19 +56,51 @@ func (i *Interpreter) eval(n *node.Node) *object {
 	if n.Children[0].Type == node.Keyword {
 		switch n.Children[0].Str {
 		case "define":
+			if len(n.Children) != 3 {
+				return newErrorObject(fmt.Sprintf("define takes exactly 2 arguments, but got %v", len(n.Children)-1))
+			}
 			if n.Children[1].Type != node.Identifier {
 				return newErrorObject(fmt.Sprintf("expected 1st argument of define to be identifier, but got %v", n.Children[1]))
 			}
-			name := n.Children[1].Str
-			val := i.eval(n.Children[2])
-			i.globalEnv[name] = val
+
+			key := n.Children[1].Str
+			value := eval(n.Children[2], env)
+			env.define(key, value)
 			return voidObject
+		case "lambda":
+			if len(n.Children) < 3 {
+				return newErrorObject(fmt.Sprintf("lambda takes 2 or more arguments, but got %v", len(n.Children)-1))
+			}
+			if n.Children[1].Type != node.Branch {
+				return newErrorObject(fmt.Sprintf("1st argument of lambda needs to be a list of arguments, but got %v", n.Children[1]))
+			}
+
+			argNames := make([]string, len(n.Children[1].Children))
+			for i, arg := range n.Children[1].Children {
+				if arg.Type != node.Identifier {
+					return newErrorObject(fmt.Sprintf("expected %v-th argument of lambda function to be identifier, but got %v", i, arg.Type))
+				}
+				argNames[i] = arg.Str
+			}
+			sentences := n.Children[2:]
+			return newFunctionObject(func(objects []*object) *object {
+				if len(objects) != len(argNames) {
+					return newErrorObject(fmt.Sprintf("expected length of arguments to be %v, but got %v", len(argNames), len(objects)))
+				}
+
+				newEnv := env.newEnv(newBindingFrame(argNames, objects))
+				var ret *object
+				for _, sentence := range sentences {
+					ret = eval(sentence, newEnv)
+				}
+				return ret
+			})
 		}
 	}
 
 	objects := make([]*object, len(n.Children))
 	for idx, child := range n.Children {
-		objects[idx] = i.eval(child)
+		objects[idx] = eval(child, env)
 	}
 	if objects[0].objectType != function {
 		return newErrorObject(fmt.Sprintf("expected function in 0-th argument, but got %v", objects[0]))
@@ -84,7 +116,7 @@ func (i *Interpreter) evalNext() (res *object, cont bool) {
 	if err != nil {
 		i.printf("An error occurred while parsing next input: %v\n", err)
 	}
-	return i.eval(n), true
+	return eval(n, newGlobalEnv(i.globalEnv)), true
 }
 
 func (i *Interpreter) ReadLoop() {
