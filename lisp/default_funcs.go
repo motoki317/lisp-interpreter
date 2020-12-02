@@ -113,6 +113,11 @@ func init() {
 			return newBooleanObject(input[0] == math.Trunc(input[0]) && int64(input[0])%2 == 1)
 		})))
 
+	defaultEnv["modulo"] = newFunctionObject(
+		makeBinary(makeNumbers(func(input []float64) *object {
+			return newNumberObject(float64(int64(input[0]) % int64(input[1])))
+		})))
+
 	// and, or -> short circuit
 	defaultEnv["not"] = newFunctionObject(
 		makeUnary(makeBooleans(func(booleans []bool) *object {
