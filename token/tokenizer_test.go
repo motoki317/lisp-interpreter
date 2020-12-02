@@ -70,6 +70,17 @@ func TestTokenizer(t *testing.T) {
 				{Type: Word, String: "123"},
 			},
 		},
+		{
+			name:   "quote",
+			string: "'() '1",
+			want: []Token{
+				{Type: Word, String: "'"},
+				{Type: LeftPar},
+				{Type: RightPar},
+				{Type: Word, String: "'"},
+				{Type: Word, String: "1"},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

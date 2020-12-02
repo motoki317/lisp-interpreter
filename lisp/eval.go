@@ -127,6 +127,37 @@ func evalCond(n *node.Node, env env) *object {
 	return voidObject
 }
 
+func evalQuote(n *node.Node) *object {
+	switch n.Type {
+	case node.Number:
+		return newNumberObject(n.Num)
+	case node.Boolean:
+		return newBooleanObject(n.B)
+	case node.Identifier:
+		return newSymbolObject(n.Str)
+	case node.Keyword:
+		return newSymbolObject(n.Str)
+	}
+	if n.Type != node.Branch {
+		panic(fmt.Sprintf("quote node type not implemented: %v", n.Type))
+	}
+	// assert n.Type == node.Branch
+	if len(n.Children) == 0 {
+		return nullObject
+	}
+	if len(n.Children) == 3 && n.Children[1].Type == node.Identifier && n.Children[1].Str == "." {
+		return newConsObject(
+			evalQuote(n.Children[0]),
+			evalQuote(n.Children[2]))
+	}
+	return newConsObject(
+		evalQuote(n.Children[0]),
+		evalQuote(&node.Node{
+			Type:     node.Branch,
+			Children: n.Children[1:],
+		}))
+}
+
 func evalDefine(n *node.Node, env env) *object {
 	// define syntax sugar
 	// (define (func-name arg1 arg2) ...)
@@ -236,6 +267,11 @@ func eval(n *node.Node, env env) *object {
 			return evalLetSeq(n, env)
 		case "cond":
 			return evalCond(n, env)
+		case "quote":
+			if len(n.Children) != 2 {
+				return newErrorObject(fmt.Sprintf("quote needs exactly 1 argument, but got %v", len(n.Children)-1))
+			}
+			return evalQuote(n.Children[1])
 		case "define":
 			return evalDefine(n, env)
 		case "lambda":

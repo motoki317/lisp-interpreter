@@ -25,6 +25,7 @@ func init() {
 		"else",
 		"let",
 		"let*",
+		"quote",
 	}
 	keywords = make(map[string]bool, len(keywordsList))
 	for _, keyword := range keywordsList {
@@ -84,6 +85,21 @@ func (p *Parser) Next() (*Node, error) {
 		return nil, errors.New("unexpected right parenthesis")
 	case token.Word:
 		s := t.String
+
+		// quote
+		if s == "'" {
+			next, err := p.Next()
+			if err != nil {
+				return nil, err
+			}
+			return &Node{
+				Type: Branch,
+				Children: []*Node{
+					{Type: Keyword, Str: "quote"},
+					next,
+				},
+			}, nil
+		}
 
 		// Boolean
 		if s == "#t" || s == "#f" {

@@ -192,6 +192,50 @@ func TestInterpreter(t *testing.T) {
 				"8\n",
 			},
 		},
+		{
+			name: "cons",
+			inputs: []string{
+				"(cons 1 2)",
+				"(cons 1 (cons 2 3))",
+				"(cons (cons 1 2) 3)",
+				"(car (cons 1 2))",
+				"(cdr (cons 1 2))",
+				"(cadr (cons 1 (cons 2 3)))",
+			},
+			outputs: []string{
+				"(1 . 2)\n",
+				"(1 2 . 3)\n",
+				"((1 . 2) . 3)\n",
+				"1\n",
+				"2\n",
+				"2\n",
+			},
+		},
+		{
+			name: "quote",
+			inputs: []string{
+				"'po",
+				"(quote po)",
+				"'()",
+				"'(1 2 3)",
+				"(caddr '(1 2 3))",
+				"'(1 . 2)",
+				"(cdr '(1 . 2))",
+				"'(define (xx po) (po))",
+				"(cadadr '(define (xx po) (po)))",
+			},
+			outputs: []string{
+				"po\n",
+				"po\n",
+				"()\n",
+				"(1 2 3)\n",
+				"3\n",
+				"(1 . 2)\n",
+				"2\n",
+				"(define (xx po) (po))\n",
+				"po\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

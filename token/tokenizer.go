@@ -14,8 +14,8 @@ type Tokenizer struct {
 // NewTokenizer creates a new tokenizer with the given io.Reader.
 func NewTokenizer(r io.Reader) *Tokenizer {
 	sc := bufio.NewScanner(r)
-	isSpaceParComment := func(r rune) bool {
-		return unicode.IsSpace(r) || r == '(' || r == ')' || r == ';'
+	isSpaceParCommentQuote := func(r rune) bool {
+		return unicode.IsSpace(r) || r == '(' || r == ')' || r == ';' || r == '\''
 	}
 	isNotSpace := func(r rune) bool {
 		return !unicode.IsSpace(r)
@@ -48,9 +48,11 @@ func NewTokenizer(r io.Reader) *Tokenizer {
 			} else {
 				return 0, nil, nil
 			}
+		case '\'':
+			return 1, data[0:1], nil
 		}
 		// tokenize by splitting with spaces, parentheses, or semicolon
-		if i := bytes.IndexFunc(data, isSpaceParComment); i >= 0 {
+		if i := bytes.IndexFunc(data, isSpaceParCommentQuote); i >= 0 {
 			return i, data[0:i], nil
 		}
 		if atEOF {

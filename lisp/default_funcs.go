@@ -128,6 +128,70 @@ func init() {
 		makeUnary(makeNumbers(func(input []float64) *object {
 			return newNumberObject(math.Sqrt(input[0]))
 		})))
+
+	defaultEnv["cons"] = newFunctionObject(
+		makeBinary(func(objects []*object) *object {
+			return newConsObject(objects[0], objects[1])
+		}))
+	defaultEnv["list"] = newFunctionObject(list)
+
+	car := makeUnary(func(objects []*object) *object {
+		o := objects[0]
+		if o.objectType != cons {
+			return newErrorObject(fmt.Sprintf("car: expected cons but got %v", o.objectType))
+		}
+		return o.pair[0]
+	})
+	cdr := makeUnary(func(objects []*object) *object {
+		o := objects[0]
+		if o.objectType != cons {
+			return newErrorObject(fmt.Sprintf("cdr: expected cons but got %v", o))
+		}
+		return o.pair[1]
+	})
+
+	pair := map[string][]generalFunc{"a": {car}, "d": {cdr}}
+	crossProd := func(first, second map[string][]generalFunc) (res map[string][]generalFunc) {
+		res = make(map[string][]generalFunc, len(first)*len(second))
+		for k1, v1 := range first {
+			for k2, v2 := range second {
+				v := make([]generalFunc, 0, len(v1)+len(v2))
+				res[k1+k2] = append(append(v, v1...), v2...)
+			}
+		}
+		return
+	}
+	defaultEnv["car"] = newFunctionObject(car)
+	defaultEnv["cdr"] = newFunctionObject(cdr)
+	second := crossProd(pair, pair)
+	for k, v := range second {
+		defaultEnv["c"+k+"r"] = newFunctionObject(composeFuncs(v...))
+	}
+	third := crossProd(second, pair)
+	for k, v := range third {
+		defaultEnv["c"+k+"r"] = newFunctionObject(composeFuncs(v...))
+	}
+	fourth := crossProd(third, pair)
+	for k, v := range fourth {
+		defaultEnv["c"+k+"r"] = newFunctionObject(composeFuncs(v...))
+	}
+}
+
+func list(objects []*object) *object {
+	if len(objects) == 0 {
+		return nullObject
+	}
+	return newConsObject(objects[0], list(objects[1:]))
+}
+
+// composeFuncs composes the given functions, applying from the LAST to the FIRST.
+func composeFuncs(funcs ...generalFunc) generalFunc {
+	return func(objects []*object) *object {
+		for i := len(funcs) - 1; i >= 0; i-- {
+			objects = []*object{funcs[i](objects)}
+		}
+		return objects[0]
+	}
 }
 
 func makeUnary(next generalFunc) generalFunc {

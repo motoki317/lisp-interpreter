@@ -110,6 +110,24 @@ func TestParser(t *testing.T) {
 				}},
 			},
 		},
+		{
+			name:   "quote",
+			string: "'1 '(+ 1 2)",
+			want: []*Node{
+				{Type: Branch, Children: []*Node{
+					{Type: Keyword, Str: "quote"},
+					{Type: Number, Num: 1},
+				}},
+				{Type: Branch, Children: []*Node{
+					{Type: Keyword, Str: "quote"},
+					{Type: Branch, Children: []*Node{
+						{Type: Identifier, Str: "+"},
+						{Type: Number, Num: 1},
+						{Type: Number, Num: 2},
+					}},
+				}},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
