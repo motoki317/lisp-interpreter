@@ -9,16 +9,26 @@ import (
 )
 
 var (
-	EOF      = errors.New("end of input")
-	keywords = []string{
+	EOF       = errors.New("end of input")
+	keywords  map[string]bool
+	numRegexp = regexp.MustCompile("^-?[0-9]+?(\\.[0-9]*)?$")
+)
+
+func init() {
+	keywordsList := []string{
 		"define",
 		"lambda",
 		"and",
 		"or",
 		"if",
+		"cond",
+		"else",
 	}
-	numRegexp = regexp.MustCompile("^-?[0-9]+?(\\.[0-9]*)?$")
-)
+	keywords = make(map[string]bool, len(keywordsList))
+	for _, keyword := range keywordsList {
+		keywords[keyword] = true
+	}
+}
 
 type Parser struct {
 	t   *token.Tokenizer
@@ -94,13 +104,11 @@ func (p *Parser) Next() (*Node, error) {
 		}
 
 		// Reserved keywords
-		for _, keyword := range keywords {
-			if s == keyword {
-				return &Node{
-					Type: Keyword,
-					Str:  s,
-				}, nil
-			}
+		if keywords[s] {
+			return &Node{
+				Type: Keyword,
+				Str:  s,
+			}, nil
 		}
 
 		// Other words -> identifier
