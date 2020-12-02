@@ -99,6 +99,22 @@ func TestTokenizer(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "comment",
+			string: "po ; this is a comment\n" +
+				"; another comment\n" +
+				"123 ; last comment",
+			want: []Token{
+				{
+					Type:   Word,
+					String: "po",
+				},
+				{
+					Type:   Word,
+					String: "123",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
