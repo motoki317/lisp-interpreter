@@ -40,6 +40,7 @@ func (i *Interpreter) evalNext() (res *object, cont bool) {
 	}
 	if err != nil {
 		i.printf("An error occurred while parsing next input: %v\n", err)
+		return nil, true
 	}
 	return eval(n, newGlobalEnv(i.globalEnv)), true
 }
@@ -53,7 +54,7 @@ func (i *Interpreter) ReadLoop() {
 		if !cont {
 			break
 		}
-		if res == voidObject {
+		if res == nil || res == voidObject {
 			continue
 		}
 		i.printf("%v\n", res)
