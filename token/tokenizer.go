@@ -13,7 +13,7 @@ var (
 		"define",
 		"lambda",
 	}
-	numRegexp = regexp.MustCompile("^[0-9]+?(\\.[0-9]*)?$")
+	numRegexp = regexp.MustCompile("^-?[0-9]+?(\\.[0-9]*)?$")
 )
 
 type Tokenizer struct {

@@ -53,7 +53,7 @@ func TestTokenizer(t *testing.T) {
 		},
 		{
 			name:   "numbers",
-			string: "po 23 45.6",
+			string: "po 23 45.6 -78",
 			want: []Token{
 				{
 					Type:   Identifier,
@@ -66,6 +66,10 @@ func TestTokenizer(t *testing.T) {
 				{
 					Type:   Number,
 					String: "45.6",
+				},
+				{
+					Type:   Number,
+					String: "-78",
 				},
 			},
 		},

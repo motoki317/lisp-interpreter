@@ -84,7 +84,7 @@ func TestParser(t *testing.T) {
 		},
 		{
 			name:   "simple node",
-			string: "(define po 123)",
+			string: "(define po -123)",
 			want: []*Node{
 				{
 					Type: Branch,
@@ -99,7 +99,7 @@ func TestParser(t *testing.T) {
 						},
 						{
 							Type: Number,
-							Num:  123,
+							Num:  -123,
 						},
 					},
 				},
