@@ -261,6 +261,10 @@ func init() {
 			}
 			return list(elements)
 		}))
+
+	defaultEnv["begin"] = newFunctionObject(func(objects []*object) *object {
+		return objects[len(objects)-1]
+	})
 }
 
 func list(objects []*object) *object {
