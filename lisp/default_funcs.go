@@ -73,6 +73,33 @@ func init() {
 			return newBooleanObject(input[0] < input[1])
 		})))
 
+	defaultEnv["max"] = newFunctionObject(
+		makeNumbers(func(input []float64) *object {
+			if len(input) == 0 {
+				return newErrorObject("max: expected at least one input")
+			}
+			max := input[0]
+			for _, in := range input[1:] {
+				if max < in {
+					max = in
+				}
+			}
+			return newNumberObject(max)
+		}))
+	defaultEnv["min"] = newFunctionObject(
+		makeNumbers(func(input []float64) *object {
+			if len(input) == 0 {
+				return newErrorObject("min: expected at least one input")
+			}
+			min := input[0]
+			for _, in := range input[1:] {
+				if in < min {
+					min = in
+				}
+			}
+			return newNumberObject(min)
+		}))
+
 	defaultEnv["zero?"] = newFunctionObject(
 		makeUnary(makeNumbers(func(input []float64) *object {
 			return newBooleanObject(input[0] == 0)
@@ -90,6 +117,11 @@ func init() {
 	defaultEnv["not"] = newFunctionObject(
 		makeUnary(makeBooleans(func(booleans []bool) *object {
 			return newBooleanObject(!booleans[0])
+		})))
+
+	defaultEnv["sqrt"] = newFunctionObject(
+		makeUnary(makeNumbers(func(input []float64) *object {
+			return newNumberObject(math.Sqrt(input[0]))
 		})))
 }
 
