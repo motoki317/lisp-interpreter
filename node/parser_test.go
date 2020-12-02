@@ -74,94 +74,40 @@ func TestParser(t *testing.T) {
 			name:   "single",
 			string: "po po",
 			want: []*Node{
-				{
-					Type: Identifier,
-					Str:  "po",
-				},
-				{
-					Type: Identifier,
-					Str:  "po",
-				},
+				{Type: Identifier, Str: "po"},
+				{Type: Identifier, Str: "po"},
 			},
 		},
 		{
 			name:   "simple node",
 			string: "(define po -123 #t #f)",
 			want: []*Node{
-				{
-					Type: Branch,
-					Children: []*Node{
-						{
-							Type: Keyword,
-							Str:  "define",
-						},
-						{
-							Type: Identifier,
-							Str:  "po",
-						},
-						{
-							Type: Number,
-							Num:  -123,
-						},
-						{
-							Type: Boolean,
-							B:    true,
-						},
-						{
-							Type: Boolean,
-							B:    false,
-						},
-					},
-				},
+				{Type: Branch, Children: []*Node{
+					{Type: Keyword, Str: "define"},
+					{Type: Identifier, Str: "po"},
+					{Type: Number, Num: -123},
+					{Type: Boolean, B: true},
+					{Type: Boolean, B: false},
+				}},
 			},
 		},
 		{
 			name:   "nesting node",
 			string: "(define (my-mult arg1 arg2) (* arg1 arg2))",
 			want: []*Node{
-				{
-					Type: Branch,
-					Children: []*Node{
-						{
-							Type: Keyword,
-							Str:  "define",
-						},
-						{
-							Type: Branch,
-							Children: []*Node{
-								{
-									Type: Identifier,
-									Str:  "my-mult",
-								},
-								{
-									Type: Identifier,
-									Str:  "arg1",
-								},
-								{
-									Type: Identifier,
-									Str:  "arg2",
-								},
-							},
-						},
-						{
-							Type: Branch,
-							Children: []*Node{
-								{
-									Type: Identifier,
-									Str:  "*",
-								},
-								{
-									Type: Identifier,
-									Str:  "arg1",
-								},
-								{
-									Type: Identifier,
-									Str:  "arg2",
-								},
-							},
-						},
-					},
-				},
+				{Type: Branch, Children: []*Node{
+					{Type: Keyword, Str: "define"},
+					{Type: Branch, Children: []*Node{
+						{Type: Identifier, Str: "my-mult"},
+						{Type: Identifier, Str: "arg1"},
+						{Type: Identifier, Str: "arg2"},
+					}},
+					{Type: Branch, Children: []*Node{
+						{Type: Identifier, Str: "*"},
+						{Type: Identifier, Str: "arg1"},
+						{Type: Identifier, Str: "arg2"},
+					}},
+				}},
 			},
 		},
 	}

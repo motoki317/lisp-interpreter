@@ -172,16 +172,15 @@ func TestInterpreter(t *testing.T) {
 			},
 		},
 	}
-	const waitOut = "> "
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			out := &bytes.Buffer{}
-			interpreter := NewInterpreter(node.NewParser(token.NewTokenizer(strings.NewReader(strings.Join(tt.inputs, "\n")))), out)
+			interpreter := NewInterpreter(node.NewParser(token.NewTokenizer(strings.NewReader(strings.Join(tt.inputs, "\n")))), out, false)
 			interpreter.ReadLoop()
 
-			expectOut := waitOut + strings.Join(tt.outputs, waitOut) + waitOut
+			expectOut := strings.Join(tt.outputs, "")
 
 			if gotOut := out.String(); gotOut != expectOut {
 				t.Errorf("gotOut %v, want %v", gotOut, expectOut)

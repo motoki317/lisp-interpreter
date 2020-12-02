@@ -33,70 +33,31 @@ func TestTokenizer(t *testing.T) {
 			name:   "po",
 			string: "po po2 po3 po4",
 			want: []Token{
-				{
-					Type:   Word,
-					String: "po",
-				},
-				{
-					Type:   Word,
-					String: "po2",
-				},
-				{
-					Type:   Word,
-					String: "po3",
-				},
-				{
-					Type:   Word,
-					String: "po4",
-				},
+				{Type: Word, String: "po"},
+				{Type: Word, String: "po2"},
+				{Type: Word, String: "po3"},
+				{Type: Word, String: "po4"},
 			},
 		},
 		{
 			name:   "numbers",
 			string: "po 23 45.6 -78",
 			want: []Token{
-				{
-					Type:   Word,
-					String: "po",
-				},
-				{
-					Type:   Word,
-					String: "23",
-				},
-				{
-					Type:   Word,
-					String: "45.6",
-				},
-				{
-					Type:   Word,
-					String: "-78",
-				},
+				{Type: Word, String: "po"},
+				{Type: Word, String: "23"},
+				{Type: Word, String: "45.6"},
+				{Type: Word, String: "-78"},
 			},
 		},
 		{
 			name:   "parentheses",
 			string: "(define po 42.3)",
 			want: []Token{
-				{
-					Type:   LeftPar,
-					String: "",
-				},
-				{
-					Type:   Word,
-					String: "define",
-				},
-				{
-					Type:   Word,
-					String: "po",
-				},
-				{
-					Type:   Word,
-					String: "42.3",
-				},
-				{
-					Type:   RightPar,
-					String: "",
-				},
+				{Type: LeftPar},
+				{Type: Word, String: "define"},
+				{Type: Word, String: "po"},
+				{Type: Word, String: "42.3"},
+				{Type: RightPar},
 			},
 		},
 		{
@@ -105,14 +66,8 @@ func TestTokenizer(t *testing.T) {
 				"; another comment\n" +
 				"123 ; last comment",
 			want: []Token{
-				{
-					Type:   Word,
-					String: "po",
-				},
-				{
-					Type:   Word,
-					String: "123",
-				},
+				{Type: Word, String: "po"},
+				{Type: Word, String: "123"},
 			},
 		},
 	}
