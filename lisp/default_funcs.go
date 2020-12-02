@@ -47,7 +47,7 @@ func init() {
 				return newErrorObject("expected at least one argument")
 			}
 			res := input[0]
-			for _, in := range input {
+			for _, in := range input[1:] {
 				if in == 0 {
 					return newErrorObject("division by 0")
 				}
