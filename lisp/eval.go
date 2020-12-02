@@ -45,6 +45,66 @@ func evalIf(n *node.Node, env env) *object {
 	}
 }
 
+func evalLet(n *node.Node, env env) *object {
+	if len(n.Children) <= 2 {
+		return newErrorObject(fmt.Sprintf("bad syntax: let needs at least 2 arguments, but got %v", len(n.Children)-1))
+	}
+
+	pairs := n.Children[1]
+	sentences := n.Children[2:]
+
+	keys := make([]string, len(pairs.Children))
+	values := make([]*object, len(pairs.Children))
+	for i, pair := range pairs.Children {
+		if len(pair.Children) != 2 {
+			return newErrorObject(fmt.Sprintf("bad syntax: let bind pair needs a list of length 2, but got length %v", len(pair.Children)))
+		}
+		if pair.Children[0].Type != node.Identifier {
+			return newErrorObject(fmt.Sprintf("bad syntax: let bind pair requires identifier, but got %v", pair.Children[0].Type))
+		}
+
+		keys[i] = pair.Children[0].Str
+		values[i] = eval(pair.Children[1], env)
+	}
+
+	env = env.newEnv(newBindingFrame(keys, values))
+	res := voidObject
+	for _, sentence := range sentences {
+		res = eval(sentence, env)
+	}
+	return res
+}
+
+func evalLetSeq(n *node.Node, env env) *object {
+	if len(n.Children) <= 2 {
+		return newErrorObject(fmt.Sprintf("bad syntax: let* needs at least 2 arguments, but got %v", len(n.Children)-1))
+	}
+
+	pairs := n.Children[1]
+	sentences := n.Children[2:]
+
+	env = env.newEnv(emptyFrame())
+	for _, pair := range pairs.Children {
+		if len(pair.Children) != 2 {
+			return newErrorObject(fmt.Sprintf("bad syntax: let* bind pair needs a list of length 2, but got length %v", len(pair.Children)))
+		}
+		if pair.Children[0].Type != node.Identifier {
+			return newErrorObject(fmt.Sprintf("bad syntax: let* bind pair requires identifier, but got %v", pair.Children[0].Type))
+		}
+
+		key := pair.Children[0].Str
+		value := eval(pair.Children[1], env)
+
+		env.define(key, value)
+	}
+
+	res := voidObject
+	for _, sentence := range sentences {
+		res = eval(sentence, env)
+	}
+	return res
+}
+
 func evalCond(n *node.Node, env env) *object {
 	if len(n.Children) == 1 {
 		return newErrorObject("bad syntax: cond needs at least 1 argument, but got 0")
@@ -170,6 +230,10 @@ func eval(n *node.Node, env env) *object {
 			return evalOr(n, env)
 		case "if":
 			return evalIf(n, env)
+		case "let":
+			return evalLet(n, env)
+		case "let*":
+			return evalLetSeq(n, env)
 		case "cond":
 			return evalCond(n, env)
 		case "define":

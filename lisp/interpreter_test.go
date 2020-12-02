@@ -171,6 +171,27 @@ func TestInterpreter(t *testing.T) {
 				"-1\n",
 			},
 		},
+		{
+			name: "let",
+			inputs: []string{
+				"(define (let-test x)" +
+					"  (let ((x (+ x 1))" +
+					"        (y (+ x 2)))" +
+					"    (* x y)))",
+				"(define (let-test-2 x)" +
+					"  (let* ((x (+ x 1))" +
+					"         (y (+ x 2)))" +
+					"    (* x y)))",
+				"(let-test 1)",
+				"(let-test-2 1)",
+			},
+			outputs: []string{
+				"",
+				"",
+				"6\n",
+				"8\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

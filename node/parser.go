@@ -23,6 +23,8 @@ func init() {
 		"if",
 		"cond",
 		"else",
+		"let",
+		"let*",
 	}
 	keywords = make(map[string]bool, len(keywordsList))
 	for _, keyword := range keywordsList {
