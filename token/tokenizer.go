@@ -4,16 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
-	"regexp"
 	"unicode"
-)
-
-var (
-	keywords = []string{
-		"define",
-		"lambda",
-	}
-	numRegexp = regexp.MustCompile("^-?[0-9]+?(\\.[0-9]*)?$")
 )
 
 type Tokenizer struct {
@@ -84,24 +75,8 @@ func (t *Tokenizer) Next() (*Token, error) {
 		}, nil
 	}
 
-	if numRegexp.MatchString(str) {
-		return &Token{
-			Type:   Number,
-			String: str,
-		}, nil
-	}
-
-	for _, keyword := range keywords {
-		if str == keyword {
-			return &Token{
-				Type:   Keyword,
-				String: str,
-			}, nil
-		}
-	}
-
 	return &Token{
-		Type:   Identifier,
+		Type:   Word,
 		String: str,
 	}, nil
 }

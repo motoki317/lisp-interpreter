@@ -96,6 +96,17 @@ func TestInterpreter(t *testing.T) {
 				"10\n",
 			},
 		},
+		{
+			name: "booleans",
+			inputs: []string{
+				"#t",
+				"#f",
+			},
+			outputs: []string{
+				"#t\n",
+				"#f\n",
+			},
+		},
 	}
 	const waitOut = "> "
 	for _, tt := range tests {

@@ -19,6 +19,8 @@ func (n *Node) equals(other *Node) bool {
 		return n.Str == other.Str
 	case Number:
 		return n.Num == other.Num
+	case Boolean:
+		return n.B == other.B
 	case Branch:
 		if len(n.Children) != len(other.Children) {
 			return false
@@ -84,7 +86,7 @@ func TestParser(t *testing.T) {
 		},
 		{
 			name:   "simple node",
-			string: "(define po -123)",
+			string: "(define po -123 #t #f)",
 			want: []*Node{
 				{
 					Type: Branch,
@@ -100,6 +102,14 @@ func TestParser(t *testing.T) {
 						{
 							Type: Number,
 							Num:  -123,
+						},
+						{
+							Type: Boolean,
+							B:    true,
+						},
+						{
+							Type: Boolean,
+							B:    false,
 						},
 					},
 				},

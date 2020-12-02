@@ -34,19 +34,19 @@ func TestTokenizer(t *testing.T) {
 			string: "po po2 po3 po4",
 			want: []Token{
 				{
-					Type:   Identifier,
+					Type:   Word,
 					String: "po",
 				},
 				{
-					Type:   Identifier,
+					Type:   Word,
 					String: "po2",
 				},
 				{
-					Type:   Identifier,
+					Type:   Word,
 					String: "po3",
 				},
 				{
-					Type:   Identifier,
+					Type:   Word,
 					String: "po4",
 				},
 			},
@@ -56,19 +56,19 @@ func TestTokenizer(t *testing.T) {
 			string: "po 23 45.6 -78",
 			want: []Token{
 				{
-					Type:   Identifier,
+					Type:   Word,
 					String: "po",
 				},
 				{
-					Type:   Number,
+					Type:   Word,
 					String: "23",
 				},
 				{
-					Type:   Number,
+					Type:   Word,
 					String: "45.6",
 				},
 				{
-					Type:   Number,
+					Type:   Word,
 					String: "-78",
 				},
 			},
@@ -82,15 +82,15 @@ func TestTokenizer(t *testing.T) {
 					String: "",
 				},
 				{
-					Type:   Keyword,
+					Type:   Word,
 					String: "define",
 				},
 				{
-					Type:   Identifier,
+					Type:   Word,
 					String: "po",
 				},
 				{
-					Type:   Number,
+					Type:   Word,
 					String: "42.3",
 				},
 				{

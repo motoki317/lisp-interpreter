@@ -10,6 +10,7 @@ type Node struct {
 	Children []*Node
 	Str      string
 	Num      float64
+	B        bool
 }
 
 type Type int
@@ -23,6 +24,8 @@ const (
 	Identifier
 	// Number Numbers
 	Number
+	// Boolean Booleans
+	Boolean
 )
 
 func (n Node) String() string {
@@ -39,6 +42,12 @@ func (n Node) String() string {
 		return n.Str
 	case Number:
 		return fmt.Sprintf("%v", n.Num)
+	case Boolean:
+		if n.B {
+			return "#t"
+		} else {
+			return "#f"
+		}
 	}
 	return fmt.Sprintf("unknown_type: %v", n.Type)
 }

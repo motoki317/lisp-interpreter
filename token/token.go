@@ -16,12 +16,8 @@ const (
 	LeftPar Type = iota
 	// RightPar )
 	RightPar
-	// Keyword Reserved keywords: define
-	Keyword
-	// Identifier Other strings
-	Identifier
-	// Number Numbers
-	Number
+	// Word Other words
+	Word
 )
 
 func (t Type) String() string {
@@ -30,12 +26,8 @@ func (t Type) String() string {
 		return "left_par"
 	case RightPar:
 		return "right_par"
-	case Keyword:
-		return "keyword"
-	case Identifier:
-		return "identifier"
-	case Number:
-		return "number"
+	case Word:
+		return "word"
 	}
 	return strconv.Itoa(int(t))
 }

@@ -4,11 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/motoki317/lisp-interpreter/token"
+	"regexp"
 	"strconv"
 )
 
 var (
-	EOF = errors.New("end of input")
+	EOF      = errors.New("end of input")
+	keywords = []string{
+		"define",
+		"lambda",
+	}
+	numRegexp = regexp.MustCompile("^-?[0-9]+?(\\.[0-9]*)?$")
 )
 
 type Parser struct {
@@ -61,24 +67,43 @@ func (p *Parser) Next() (*Node, error) {
 	switch t.Type {
 	case token.RightPar:
 		return nil, errors.New("unexpected right parenthesis")
-	case token.Identifier:
+	case token.Word:
+		s := t.String
+
+		// Boolean
+		if s == "#t" || s == "#f" {
+			return &Node{
+				Type: Boolean,
+				B:    s == "#t",
+			}, nil
+		}
+
+		// Number
+		if numRegexp.MatchString(s) {
+			num, err := strconv.ParseFloat(t.String, 64)
+			if err != nil {
+				return nil, fmt.Errorf("error while parsing number: %w", err)
+			}
+			return &Node{
+				Type: Number,
+				Num:  num,
+			}, nil
+		}
+
+		// Reserved keywords
+		for _, keyword := range keywords {
+			if s == keyword {
+				return &Node{
+					Type: Keyword,
+					Str:  s,
+				}, nil
+			}
+		}
+
+		// Other words -> identifier
 		return &Node{
 			Type: Identifier,
-			Str:  t.String,
-		}, nil
-	case token.Keyword:
-		return &Node{
-			Type: Keyword,
-			Str:  t.String,
-		}, nil
-	case token.Number:
-		num, err := strconv.ParseFloat(t.String, 64)
-		if err != nil {
-			return nil, fmt.Errorf("error while parsing number: %w", err)
-		}
-		return &Node{
-			Type: Number,
-			Num:  num,
+			Str:  s,
 		}, nil
 	case token.LeftPar:
 		node := &Node{

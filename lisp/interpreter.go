@@ -14,7 +14,7 @@ type Interpreter struct {
 
 func NewInterpreter(p *node.Parser, out io.Writer) *Interpreter {
 	global := emptyFrame()
-	for k, v := range defaultFuncs {
+	for k, v := range defaultEnv {
 		global[k] = v
 	}
 	return &Interpreter{
@@ -43,6 +43,8 @@ func eval(n *node.Node, env env) *object {
 		}
 	case node.Number:
 		return newNumberObject(n.Num)
+	case node.Boolean:
+		return newBooleanObject(n.B)
 	}
 	if n.Type != node.Branch {
 		panic("node type not implemented")

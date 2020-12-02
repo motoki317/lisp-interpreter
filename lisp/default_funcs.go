@@ -2,12 +2,12 @@ package lisp
 
 import "fmt"
 
-var defaultFuncs map[string]*object
+var defaultEnv map[string]*object
 
 func init() {
-	defaultFuncs = make(map[string]*object)
+	defaultEnv = make(map[string]*object)
 
-	defaultFuncs["+"] = newFunctionObject(
+	defaultEnv["+"] = newFunctionObject(
 		makeNumbersVariadicFunc(func(input []float64) *object {
 			var res float64
 			for _, in := range input {
@@ -15,7 +15,7 @@ func init() {
 			}
 			return newNumberObject(res)
 		}))
-	defaultFuncs["-"] = newFunctionObject(
+	defaultEnv["-"] = newFunctionObject(
 		makeNumbersVariadicFunc(func(input []float64) *object {
 			if len(input) == 0 {
 				return newErrorObject("expected at least one argument")
@@ -26,7 +26,7 @@ func init() {
 			}
 			return newNumberObject(res)
 		}))
-	defaultFuncs["*"] = newFunctionObject(
+	defaultEnv["*"] = newFunctionObject(
 		makeNumbersVariadicFunc(func(input []float64) *object {
 			var res float64 = 1
 			for _, in := range input {
@@ -34,7 +34,7 @@ func init() {
 			}
 			return newNumberObject(res)
 		}))
-	defaultFuncs["/"] = newFunctionObject(
+	defaultEnv["/"] = newFunctionObject(
 		makeNumbersVariadicFunc(func(input []float64) *object {
 			if len(input) == 0 {
 				return newErrorObject("expected at least one argument")
