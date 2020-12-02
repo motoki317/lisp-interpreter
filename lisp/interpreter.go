@@ -57,6 +57,32 @@ func eval(n *node.Node, env env) *object {
 
 	if n.Children[0].Type == node.Keyword {
 		switch n.Children[0].Str {
+		case "and":
+			// Short circuit evaluation
+			for _, child := range n.Children[1:] {
+				res := eval(child, env)
+				if res.objectType != boolean {
+					// Treat non-boolean result as truthy value
+					continue
+				}
+				if !res.b {
+					return newBooleanObject(false)
+				}
+			}
+			return newBooleanObject(true)
+		case "or":
+			// Short circuit evaluation
+			for _, child := range n.Children[1:] {
+				res := eval(child, env)
+				if res.objectType != boolean {
+					// Treat non-boolean result as truthy value
+					return res
+				}
+				if res.b {
+					return newBooleanObject(true)
+				}
+			}
+			return newBooleanObject(false)
 		case "define":
 			if len(n.Children) != 3 {
 				return newErrorObject(fmt.Sprintf("bad syntax: define takes exactly 2 arguments, but got %v", len(n.Children)-1))

@@ -101,10 +101,37 @@ func TestInterpreter(t *testing.T) {
 			inputs: []string{
 				"#t",
 				"#f",
+				"(> 3 2)",
+				"(>= 3 3)",
+				"(= 0 1)",
+				"(zero? 0)",
+				"(even? 4)",
+				"(odd? 4)",
+				"(not (= 0 1))",
 			},
 			outputs: []string{
 				"#t\n",
 				"#f\n",
+				"#t\n",
+				"#t\n",
+				"#f\n",
+				"#t\n",
+				"#t\n",
+				"#f\n",
+				"#t\n",
+			},
+		},
+		{
+			name: "short circuit",
+			inputs: []string{
+				"(and (= 5 0) (/ 5 0))",
+				"(or #f #t)",
+				"(or #f 5)",
+			},
+			outputs: []string{
+				"#f\n",
+				"#t\n",
+				"5\n",
 			},
 		},
 	}

@@ -13,6 +13,8 @@ var (
 	keywords = []string{
 		"define",
 		"lambda",
+		"and",
+		"or",
 	}
 	numRegexp = regexp.MustCompile("^-?[0-9]+?(\\.[0-9]*)?$")
 )
