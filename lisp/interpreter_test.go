@@ -236,6 +236,21 @@ func TestInterpreter(t *testing.T) {
 				"po\n",
 			},
 		},
+		{
+			name: "set!",
+			inputs: []string{
+				"(define po 20)",
+				"po",
+				"(set! po 50)",
+				"po",
+			},
+			outputs: []string{
+				"",
+				"20\n",
+				"",
+				"50\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

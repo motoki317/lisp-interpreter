@@ -127,6 +127,22 @@ func evalCond(n *node.Node, env env) *object {
 	return voidObject
 }
 
+func evalSet(n *node.Node, env env) *object {
+	if len(n.Children) != 3 {
+		return newErrorObject(fmt.Sprintf("set! exactly needs 2 arguments, but got %v", len(n.Children)-1))
+	}
+	if n.Children[1].Type != node.Identifier {
+		return newErrorObject(fmt.Sprintf("1st argument of set! needs to be identifier, but got %v", n.Children[1].Type))
+	}
+	key := n.Children[1].Str
+	value := eval(n.Children[2], env)
+	if _, ok := env.lookup(key); !ok {
+		return newErrorObject(fmt.Sprintf("set!: %v is not defined yet", key))
+	}
+	env.define(key, value)
+	return voidObject
+}
+
 func evalQuote(n *node.Node) *object {
 	switch n.Type {
 	case node.Number:
@@ -267,6 +283,8 @@ func eval(n *node.Node, env env) *object {
 			return evalLetSeq(n, env)
 		case "cond":
 			return evalCond(n, env)
+		case "set!":
+			return evalSet(n, env)
 		case "quote":
 			if len(n.Children) != 2 {
 				return newErrorObject(fmt.Sprintf("quote needs exactly 1 argument, but got %v", len(n.Children)-1))
