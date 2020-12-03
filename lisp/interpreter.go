@@ -38,7 +38,7 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
 			if err != nil {
 				return newErrorObject(fmt.Sprintf("an error occurred while reading from input: %v", err))
 			}
-			return eval(&node.Node{
+			return evalWithTailOptimization(&node.Node{
 				Type: node.Branch,
 				Children: []*node.Node{
 					{Type: node.Keyword, Str: "quote"},
@@ -65,7 +65,7 @@ func (i *Interpreter) evalNext() (res *object, cont bool) {
 		i.printf("An error occurred while parsing next input: %v\n", err)
 		return nil, true
 	}
-	return eval(n, newGlobalEnv(i.globalEnv)), true
+	return evalWithTailOptimization(n, newGlobalEnv(i.globalEnv)), true
 }
 
 func (i *Interpreter) ReadLoop() {

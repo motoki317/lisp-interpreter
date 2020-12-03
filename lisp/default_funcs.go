@@ -2,6 +2,7 @@ package lisp
 
 import (
 	"fmt"
+	"github.com/motoki317/lisp-interpreter/node"
 	"math"
 	"strings"
 )
@@ -238,18 +239,20 @@ func init() {
 			return newBooleanObject(objects[0].objectType == str)
 		}))
 
-	defaultEnv["apply"] = newFunctionObject(
-		makeBinary(func(objects []*object) *object {
-			f := objects[0]
-			args := objects[1]
-			if f.objectType != function {
-				return newErrorObject(fmt.Sprintf("expected 1st argument of apply to be a function, but got %v", f))
-			}
-			if !args.isList() {
-				return newErrorObject(fmt.Sprintf("expected 2nd argument of apply to be a list, but got %v", args))
-			}
-			return f.f(args.listElements())
-		}))
+	defaultEnv["apply"] = newRawFunctionObject(func(objects []*object) (*object, *node.Node, env) {
+		if len(objects) != 2 {
+			return newErrorObject(fmt.Sprintf("expected argument length to be 2, but got %v", len(objects))), nil, nil
+		}
+		f := objects[0]
+		args := objects[1]
+		if f.objectType != function {
+			return newErrorObject(fmt.Sprintf("expected 1st argument of apply to be a function, but got %v", f)), nil, nil
+		}
+		if !args.isList() {
+			return newErrorObject(fmt.Sprintf("expected 2nd argument of apply to be a list, but got %v", args)), nil, nil
+		}
+		return f.f(args.listElements())
+	})
 	defaultEnv["map"] = newFunctionObject(
 		makeBinary(func(objects []*object) *object {
 			f := objects[0]
@@ -262,14 +265,10 @@ func init() {
 			}
 			elements := lst.listElements()
 			for i, elt := range elements {
-				elements[i] = f.f([]*object{elt})
+				elements[i] = callWithTailOptimization(f.f, []*object{elt})
 			}
 			return list(elements)
 		}))
-
-	defaultEnv["begin"] = newFunctionObject(func(objects []*object) *object {
-		return objects[len(objects)-1]
-	})
 
 	defaultEnv["symbol->string"] = newFunctionObject(
 		makeUnary(func(objects []*object) *object {

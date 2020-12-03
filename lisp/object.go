@@ -2,6 +2,7 @@ package lisp
 
 import (
 	"fmt"
+	"github.com/motoki317/lisp-interpreter/node"
 	"strconv"
 )
 
@@ -10,6 +11,7 @@ var (
 	nullObject = &object{objectType: null}
 )
 
+type tailOptFunc func(objects []*object) (*object, *node.Node, env)
 type generalFunc func(objects []*object) *object
 
 type object struct {
@@ -18,7 +20,7 @@ type object struct {
 	b          bool
 	pair       [2]*object
 	str        string
-	f          generalFunc
+	f          tailOptFunc
 }
 
 func (o *object) equals(other *object) bool {
@@ -185,10 +187,31 @@ func newConsObject(car, cdr *object) *object {
 	}
 }
 
-func newFunctionObject(f generalFunc) *object {
+func callWithTailOptimization(f func(objects []*object) (*object, *node.Node, env), objects []*object) *object {
+	obj, n, env := f(objects)
+	if obj != nil {
+		return obj
+	}
+	return evalWithTailOptimization(n, env)
+}
+
+func wrapFunction(f generalFunc) func(objects []*object) (*object, *node.Node, env) {
+	return func(objects []*object) (*object, *node.Node, env) {
+		return f(objects), nil, nil
+	}
+}
+
+func newRawFunctionObject(f tailOptFunc) *object {
 	return &object{
 		objectType: function,
 		f:          f,
+	}
+}
+
+func newFunctionObject(f generalFunc) *object {
+	return &object{
+		objectType: function,
+		f:          wrapFunction(f),
 	}
 }
 

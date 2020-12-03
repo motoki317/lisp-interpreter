@@ -27,6 +27,7 @@ func init() {
 		"let*",
 		"quote",
 		"set!",
+		"begin",
 	}
 	keywords = make(map[string]bool, len(keywordsList))
 	for _, keyword := range keywordsList {
