@@ -3,6 +3,7 @@ package lisp
 import (
 	"bytes"
 	"fmt"
+	"github.com/motoki317/lisp-interpreter/lisp/object/object_type"
 	"github.com/motoki317/lisp-interpreter/node"
 	"github.com/motoki317/lisp-interpreter/token"
 	"strconv"
@@ -35,7 +36,7 @@ func BenchmarkEvalSumN(b *testing.B) {
 	if !cont {
 		panic("not continued")
 	}
-	if obj.objectType != number || int(obj.num) != b.N*(b.N+1)/2 {
+	if obj.Type() != object_type.Number || int(obj.Number()) != b.N*(b.N+1)/2 {
 		panic(fmt.Sprintf("unexpected object: %v", obj))
 	}
 }
@@ -49,7 +50,7 @@ func BenchmarkEvalSumTailN(b *testing.B) {
 	if !cont {
 		panic("not continued")
 	}
-	if obj.objectType != number || int(obj.num) != b.N*(b.N+1)/2 {
+	if obj.Type() != object_type.Number || int(obj.Number()) != b.N*(b.N+1)/2 {
 		panic(fmt.Sprintf("unexpected object: %v", obj))
 	}
 }
@@ -64,7 +65,7 @@ func BenchmarkEvalSum(b *testing.B) {
 		if !cont {
 			panic("not continued")
 		}
-		if obj.objectType != number || obj.num != 50005000 {
+		if obj.Type() != object_type.Number || obj.Number() != 50005000 {
 			panic(fmt.Sprintf("unexpected object: %v", obj))
 		}
 	}
@@ -80,7 +81,7 @@ func BenchmarkEvalSumTail(b *testing.B) {
 		if !cont {
 			panic("not continued")
 		}
-		if obj.objectType != number || obj.num != 50005000 {
+		if obj.Type() != object_type.Number || obj.Number() != 50005000 {
 			panic(fmt.Sprintf("unexpected object: %v", obj))
 		}
 	}

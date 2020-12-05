@@ -2,6 +2,7 @@ package lisp
 
 import (
 	"fmt"
+	"github.com/motoki317/lisp-interpreter/lisp/object"
 	"github.com/motoki317/lisp-interpreter/node"
 	"io"
 )
@@ -9,12 +10,12 @@ import (
 type Interpreter struct {
 	p         *node.Parser
 	out       io.Writer
-	globalEnv frame
+	globalEnv object.Frame
 	cuiMode   bool
 }
 
 func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
-	global := emptyFrame()
+	global := object.EmptyFrame()
 	for k, v := range defaultEnv {
 		global[k] = v
 	}
@@ -24,19 +25,19 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
 		globalEnv: global,
 		cuiMode:   cuiMode,
 	}
-	global["display"] = newFunctionObject(
-		makeUnary(func(objects []*object) *object {
+	global["display"] = object.NewWrappedFunctionObject(
+		makeUnary(func(objects []object.Object) object.Object {
 			i.printf("%v\n", objects[0])
-			return voidObject
+			return object.VoidObj
 		}))
-	global["read"] = newFunctionObject(
-		makeNullary(func(objects []*object) *object {
+	global["read"] = object.NewWrappedFunctionObject(
+		makeNullary(func(objects []object.Object) object.Object {
 			n, err := i.p.Next()
 			if err == node.EOF {
-				return newErrorObject("end of input")
+				return object.NewErrorObject("end of input")
 			}
 			if err != nil {
-				return newErrorObject(fmt.Sprintf("an error occurred while reading from input: %v", err))
+				return object.NewErrorObject(fmt.Sprintf("an error occurred while reading from input: %v", err))
 			}
 			return evalWithTailOptimization(&node.Node{
 				Type: node.Branch,
@@ -44,7 +45,7 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
 					{Type: node.Keyword, Str: "quote"},
 					n,
 				},
-			}, newGlobalEnv(i.globalEnv))
+			}, object.NewGlobalEnv(i.globalEnv))
 		}))
 	return i
 }
@@ -56,7 +57,7 @@ func (i *Interpreter) printf(format string, a ...interface{}) {
 	}
 }
 
-func (i *Interpreter) evalNext() (res *object, cont bool) {
+func (i *Interpreter) evalNext() (res object.Object, cont bool) {
 	n, err := i.p.Next()
 	if err == node.EOF {
 		return nil, false
@@ -65,7 +66,7 @@ func (i *Interpreter) evalNext() (res *object, cont bool) {
 		i.printf("An error occurred while parsing next input: %v\n", err)
 		return nil, true
 	}
-	return evalWithTailOptimization(n, newGlobalEnv(i.globalEnv)), true
+	return evalWithTailOptimization(n, object.NewGlobalEnv(i.globalEnv)), true
 }
 
 func (i *Interpreter) ReadLoop() {
@@ -77,7 +78,7 @@ func (i *Interpreter) ReadLoop() {
 		if !cont {
 			break
 		}
-		if res == nil || res == voidObject {
+		if res == nil || res == object.VoidObj {
 			continue
 		}
 		i.printf("%v\n", res)
