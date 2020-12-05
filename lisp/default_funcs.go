@@ -239,7 +239,7 @@ func init() {
 			return newBooleanObject(objects[0].objectType == str)
 		}))
 
-	defaultEnv["apply"] = newRawFunctionObject(func(objects []*object) (*object, *node.Node, env) {
+	defaultEnv["apply"] = newRawFunctionObject(func(objects []*object) (*object, *node.Node, *env) {
 		if len(objects) != 2 {
 			return newErrorObject(fmt.Sprintf("expected argument length to be 2, but got %v", len(objects))), nil, nil
 		}

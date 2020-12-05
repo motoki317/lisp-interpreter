@@ -5,7 +5,7 @@ import (
 	"github.com/motoki317/lisp-interpreter/node"
 )
 
-func evalAnd(n *node.Node, env env) *object {
+func evalAnd(n *node.Node, env *env) *object {
 	// Short circuit evaluation
 	res := newBooleanObject(true)
 	for _, child := range n.Children[1:] {
@@ -17,7 +17,7 @@ func evalAnd(n *node.Node, env env) *object {
 	return res
 }
 
-func evalOr(n *node.Node, env env) *object {
+func evalOr(n *node.Node, env *env) *object {
 	// Short circuit evaluation
 	for _, child := range n.Children[1:] {
 		res := evalWithTailOptimization(child, env)
@@ -28,7 +28,7 @@ func evalOr(n *node.Node, env env) *object {
 	return newBooleanObject(false)
 }
 
-func evalIf(n *node.Node, env env) (*object, *node.Node, env) {
+func evalIf(n *node.Node, env *env) (*object, *node.Node, *env) {
 	if len(n.Children) != 3 && len(n.Children) != 4 {
 		return newErrorObject(fmt.Sprintf("bad syntax: if needs 2 or 3 arguments, but got %v", len(n.Children)-1)), nil, nil
 	}
@@ -45,7 +45,7 @@ func evalIf(n *node.Node, env env) (*object, *node.Node, env) {
 	}
 }
 
-func evalLet(n *node.Node, env env) (*object, *node.Node, env) {
+func evalLet(n *node.Node, env *env) (*object, *node.Node, *env) {
 	if len(n.Children) <= 2 {
 		return newErrorObject(fmt.Sprintf("bad syntax: let needs at least 2 arguments, but got %v", len(n.Children)-1)), nil, nil
 	}
@@ -74,7 +74,7 @@ func evalLet(n *node.Node, env env) (*object, *node.Node, env) {
 	return nil, sentences[len(sentences)-1], env
 }
 
-func evalLetSeq(n *node.Node, env env) (*object, *node.Node, env) {
+func evalLetSeq(n *node.Node, env *env) (*object, *node.Node, *env) {
 	if len(n.Children) <= 2 {
 		return newErrorObject(fmt.Sprintf("bad syntax: let* needs at least 2 arguments, but got %v", len(n.Children)-1)), nil, nil
 	}
@@ -103,7 +103,7 @@ func evalLetSeq(n *node.Node, env env) (*object, *node.Node, env) {
 	return nil, sentences[len(sentences)-1], env
 }
 
-func evalCond(n *node.Node, env env) (*object, *node.Node, env) {
+func evalCond(n *node.Node, env *env) (*object, *node.Node, *env) {
 	if len(n.Children) == 1 {
 		return newErrorObject("bad syntax: cond needs at least 1 argument, but got 0"), nil, nil
 	}
@@ -126,7 +126,7 @@ func evalCond(n *node.Node, env env) (*object, *node.Node, env) {
 	return voidObject, nil, nil
 }
 
-func evalSet(n *node.Node, env env) *object {
+func evalSet(n *node.Node, env *env) *object {
 	if len(n.Children) != 3 {
 		return newErrorObject(fmt.Sprintf("set! exactly needs 2 arguments, but got %v", len(n.Children)-1))
 	}
@@ -175,7 +175,7 @@ func evalQuote(n *node.Node) *object {
 		}))
 }
 
-func evalDefine(n *node.Node, env env) *object {
+func evalDefine(n *node.Node, env *env) *object {
 	// define syntax sugar
 	// (define (func-name arg1 arg2) ...)
 	// = (define func-name (lambda (arg1 arg2) ...))
@@ -216,7 +216,7 @@ func evalDefine(n *node.Node, env env) *object {
 	return voidObject
 }
 
-func evalLambda(n *node.Node, e env) *object {
+func evalLambda(n *node.Node, e *env) *object {
 	if len(n.Children) < 3 {
 		return newErrorObject(fmt.Sprintf("bad syntax: lambda takes 2 or more arguments, but got %v", len(n.Children)-1))
 	}
@@ -232,7 +232,7 @@ func evalLambda(n *node.Node, e env) *object {
 		argNames[i] = arg.Str
 	}
 	sentences := n.Children[2:]
-	return newRawFunctionObject(func(objects []*object) (*object, *node.Node, env) {
+	return newRawFunctionObject(func(objects []*object) (*object, *node.Node, *env) {
 		if len(objects) != len(argNames) {
 			return newErrorObject(fmt.Sprintf("expected length of arguments to be %v, but got %v", len(argNames), len(objects))), nil, nil
 		}
@@ -245,7 +245,7 @@ func evalLambda(n *node.Node, e env) *object {
 	})
 }
 
-func evalBegin(n *node.Node, env env) (*object, *node.Node, env) {
+func evalBegin(n *node.Node, env *env) (*object, *node.Node, *env) {
 	if len(n.Children) <= 1 {
 		return newErrorObject("begin needs at least 1 argument, but got 0"), nil, nil
 	}
@@ -259,7 +259,7 @@ func evalBegin(n *node.Node, env env) (*object, *node.Node, env) {
 
 // eval evaluates the given node, and returns the result obj, nil continuation, and nil newEnv.
 // Otherwise, returns nil, continuation node, and newEnv to evaluate with for tail call optimization.
-func eval(n *node.Node, env env) (obj *object, continuation *node.Node, newEnv env) {
+func eval(n *node.Node, env *env) (obj *object, continuation *node.Node, newEnv *env) {
 	// Base cases
 	switch n.Type {
 	case node.Keyword:
@@ -329,7 +329,7 @@ func eval(n *node.Node, env env) (obj *object, continuation *node.Node, newEnv e
 	return objects[0].f(objects[1:])
 }
 
-func evalWithTailOptimization(n *node.Node, env env) (ret *object) {
+func evalWithTailOptimization(n *node.Node, env *env) (ret *object) {
 	for {
 		ret, n, env = eval(n, env)
 		if ret != nil {

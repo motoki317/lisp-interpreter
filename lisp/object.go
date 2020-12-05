@@ -11,7 +11,7 @@ var (
 	nullObject = &object{objectType: null}
 )
 
-type tailOptFunc func(objects []*object) (*object, *node.Node, env)
+type tailOptFunc func(objects []*object) (*object, *node.Node, *env)
 type generalFunc func(objects []*object) *object
 
 type object struct {
@@ -187,7 +187,7 @@ func newConsObject(car, cdr *object) *object {
 	}
 }
 
-func callWithTailOptimization(f func(objects []*object) (*object, *node.Node, env), objects []*object) *object {
+func callWithTailOptimization(f func(objects []*object) (*object, *node.Node, *env), objects []*object) *object {
 	obj, n, env := f(objects)
 	if obj != nil {
 		return obj
@@ -195,8 +195,8 @@ func callWithTailOptimization(f func(objects []*object) (*object, *node.Node, en
 	return evalWithTailOptimization(n, env)
 }
 
-func wrapFunction(f generalFunc) func(objects []*object) (*object, *node.Node, env) {
-	return func(objects []*object) (*object, *node.Node, env) {
+func wrapFunction(f generalFunc) func(objects []*object) (*object, *node.Node, *env) {
+	return func(objects []*object) (*object, *node.Node, *env) {
 		return f(objects), nil, nil
 	}
 }

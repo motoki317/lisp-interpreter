@@ -1,43 +1,48 @@
 package lisp
 
 type (
-	env   []frame
+	env struct {
+		frame frame
+		upper *env
+	}
 	frame map[string]*object
 )
 
 // newGlobalEnv returns a new env with single given frame (i.e. global env).
-func newGlobalEnv(globalEnv frame) env {
-	return []frame{globalEnv}
+func newGlobalEnv(globalEnv frame) *env {
+	return &env{frame: globalEnv}
 }
 
 // newEnv appends the given new frame to the existing env, not modifying the base env.
-func (e env) newEnv(newFrame frame) env {
-	newEnv := make([]frame, len(e)+1)
-	newEnv[0] = newFrame
-	for i := range e {
-		newEnv[i+1] = e[i]
+func (e *env) newEnv(newFrame frame) *env {
+	return &env{
+		frame: newFrame,
+		upper: e,
 	}
-	return newEnv
 }
 
 // define adds or overrides a key value pair in this env.
-func (e env) define(key string, value *object) {
-	for _, frame := range e {
-		if _, ok := frame[key]; ok {
-			frame[key] = value
+func (e *env) define(key string, value *object) {
+	cur := e
+	for cur != nil {
+		if _, ok := cur.frame[key]; ok {
+			cur.frame[key] = value
 			return
 		}
+		cur = cur.upper
 	}
 	// no match, so define a new key-value pair to the top frame
-	e[0][key] = value
+	e.frame[key] = value
 }
 
 // lookup looks up for the key in this env.
-func (e env) lookup(key string) (value *object, ok bool) {
-	for _, frame := range e {
-		if v, ok := frame[key]; ok {
+func (e *env) lookup(key string) (value *object, ok bool) {
+	cur := e
+	for cur != nil {
+		if v, ok := cur.frame[key]; ok {
 			return v, true
 		}
+		cur = cur.upper
 	}
 	return nil, false
 }
