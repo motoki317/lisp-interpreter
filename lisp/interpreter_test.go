@@ -276,7 +276,7 @@ func TestInterpreter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			out := &bytes.Buffer{}
-			interpreter := NewInterpreter(node.NewParser(token.NewTokenizer(strings.NewReader(strings.Join(tt.inputs, "\n")))), out, false)
+			interpreter := NewInterpreter(node.NewParser(token.NewTokenizer(strings.NewReader(strings.Join(tt.inputs, "\n")))), out, false, 0)
 			interpreter.ReadLoop()
 
 			expectOut := strings.Join(tt.outputs, "")

@@ -5,6 +5,7 @@ import (
 	"github.com/motoki317/lisp-interpreter/lisp/object"
 	"github.com/motoki317/lisp-interpreter/lisp/object/object_type"
 	"github.com/motoki317/lisp-interpreter/node"
+	"time"
 )
 
 func evalAnd(n *node.Node, env *object.Env) object.Object {
@@ -336,6 +337,20 @@ func evalWithTailOptimization(n *node.Node, env *object.Env) (ret object.Object)
 		ret, n, env = eval(n, env)
 		if ret != nil {
 			return
+		}
+	}
+}
+
+func evalWithStopper(n *node.Node, env *object.Env, stop <-chan time.Time) (ret object.Object, timedOut bool) {
+	for {
+		select {
+		case <-stop:
+			return nil, true
+		default:
+			ret, n, env = eval(n, env)
+			if ret != nil {
+				return ret, false
+			}
 		}
 	}
 }

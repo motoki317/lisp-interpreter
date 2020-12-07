@@ -6,6 +6,7 @@ import (
 	"github.com/motoki317/lisp-interpreter/node"
 	"github.com/motoki317/lisp-interpreter/token"
 	"io"
+	"time"
 )
 
 type Interpreter struct {
@@ -13,9 +14,10 @@ type Interpreter struct {
 	out       io.Writer
 	globalEnv object.Frame
 	cuiMode   bool
+	timeout   time.Duration
 }
 
-func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
+func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool, timeout time.Duration) *Interpreter {
 	global := object.EmptyFrame()
 	for k, v := range defaultEnv {
 		global[k] = v
@@ -25,6 +27,7 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
 		out:       out,
 		globalEnv: global,
 		cuiMode:   cuiMode,
+		timeout:   timeout,
 	}
 	global["display"] = object.NewWrappedFunctionObject(
 		makeUnary(func(objects []object.Object) object.Object {
@@ -68,16 +71,29 @@ func (i *Interpreter) printf(format string, a ...interface{}) {
 	}
 }
 
-func (i *Interpreter) evalNext() (res object.Object, cont bool) {
+func (i *Interpreter) evalNext() (res object.Object, cont bool, timedOut bool) {
 	n, err := i.p.Next()
 	if err == node.EOF {
-		return nil, false
+		return nil, false, false
 	}
 	if err != nil {
 		i.printf("An error occurred while parsing next input: %v\n", err)
-		return nil, true
+		return nil, true, false
 	}
-	return evalWithTailOptimization(n, object.NewGlobalEnv(i.globalEnv)), true
+
+	var stopper <-chan time.Time
+	if i.timeout != time.Duration(0) {
+		timer := time.NewTimer(i.timeout)
+		stopper = timer.C
+		defer timer.Stop()
+	}
+
+	res, timedOut = evalWithStopper(n, object.NewGlobalEnv(i.globalEnv), stopper)
+	if timedOut {
+		return nil, true, true
+	} else {
+		return res, true, false
+	}
 }
 
 // ReadLoop executes the Read, Eval, Print loop (REPL), until the parser hits EOF.
@@ -86,9 +102,13 @@ func (i *Interpreter) ReadLoop() {
 		if i.cuiMode {
 			i.printf("> ")
 		}
-		res, cont := i.evalNext()
+		res, cont, timedOut := i.evalNext()
 		if !cont {
 			break
+		}
+		if timedOut {
+			i.printf("Timed out.\n")
+			continue
 		}
 		if res == nil || res == object.VoidObj {
 			continue

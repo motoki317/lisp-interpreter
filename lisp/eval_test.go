@@ -16,10 +16,10 @@ func setUpInterpreter(b *testing.B, preEval string) (*bytes.Buffer, *Interpreter
 	input := bytes.NewBufferString("")
 	parser := node.NewParser(token.NewTokenizer(input))
 	out := &bytes.Buffer{}
-	interpreter := NewInterpreter(parser, out, false)
+	interpreter := NewInterpreter(parser, out, false, 0)
 
 	input.WriteString(preEval)
-	_, cont := interpreter.evalNext()
+	_, cont, _ := interpreter.evalNext()
 	if !cont {
 		b.Fatalf("not continued")
 	}
@@ -32,7 +32,7 @@ func BenchmarkEvalSumN(b *testing.B) {
 
 	input.WriteString("(sum " + strconv.Itoa(b.N) + ")")
 	b.ResetTimer()
-	obj, cont := interpreter.evalNext()
+	obj, cont, _ := interpreter.evalNext()
 	b.StopTimer()
 	if !cont {
 		panic("not continued")
@@ -47,7 +47,7 @@ func BenchmarkEvalSumTailN(b *testing.B) {
 
 	input.WriteString("(sum-tail " + strconv.Itoa(b.N) + " 0)")
 	b.ResetTimer()
-	obj, cont := interpreter.evalNext()
+	obj, cont, _ := interpreter.evalNext()
 	b.StopTimer()
 	if !cont {
 		panic("not continued")
@@ -64,7 +64,7 @@ func BenchmarkEvalSum(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		input.WriteString("(sum 10000)")
 		b.StartTimer()
-		obj, cont := interpreter.evalNext()
+		obj, cont, _ := interpreter.evalNext()
 		b.StopTimer()
 		if !cont {
 			panic("not continued")
@@ -82,7 +82,7 @@ func BenchmarkEvalSumTail(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		input.WriteString("(sum-tail 10000 0)")
 		b.StartTimer()
-		obj, cont := interpreter.evalNext()
+		obj, cont, _ := interpreter.evalNext()
 		b.StopTimer()
 		if !cont {
 			panic("not continued")

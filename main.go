@@ -8,6 +8,6 @@ import (
 )
 
 func main() {
-	i := lisp.NewInterpreter(node.NewParser(token.NewTokenizer(os.Stdin)), os.Stdout, true)
+	i := lisp.NewInterpreter(node.NewParser(token.NewTokenizer(os.Stdin)), os.Stdout, true, 0)
 	i.ReadLoop()
 }
