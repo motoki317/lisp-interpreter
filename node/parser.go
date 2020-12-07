@@ -44,6 +44,11 @@ func NewParser(t *token.Tokenizer) *Parser {
 	return &Parser{t: t}
 }
 
+// SetTokenizer sets internal tokenizer used by this parser, to start using from the next Next() call.
+func (p *Parser) SetTokenizer(t *token.Tokenizer) {
+	p.t = t
+}
+
 func (p *Parser) read() error {
 	if p.buf != nil {
 		return nil

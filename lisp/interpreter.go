@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/motoki317/lisp-interpreter/lisp/object"
 	"github.com/motoki317/lisp-interpreter/node"
+	"github.com/motoki317/lisp-interpreter/token"
 	"io"
 )
 
@@ -50,6 +51,16 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool) *Interpreter {
 	return i
 }
 
+// SetTokenizer sets internal tokenizer used by parser, to start using from the next call.
+func (i *Interpreter) SetTokenizer(t *token.Tokenizer) {
+	i.p.SetTokenizer(t)
+}
+
+// SetOutput sets the output used by this interpreter.
+func (i *Interpreter) SetOutput(out io.Writer) {
+	i.out = out
+}
+
 func (i *Interpreter) printf(format string, a ...interface{}) {
 	_, err := fmt.Fprintf(i.out, format, a...)
 	if err != nil {
@@ -69,6 +80,7 @@ func (i *Interpreter) evalNext() (res object.Object, cont bool) {
 	return evalWithTailOptimization(n, object.NewGlobalEnv(i.globalEnv)), true
 }
 
+// ReadLoop executes the Read, Eval, Print loop (REPL), until the parser hits EOF.
 func (i *Interpreter) ReadLoop() {
 	for {
 		if i.cuiMode {
