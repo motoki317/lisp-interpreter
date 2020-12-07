@@ -54,6 +54,8 @@ func NewTokenizer(r io.Reader) *Tokenizer {
 			// string: read till next double quote
 			if i := bytes.IndexByte(data[1:], '"'); i >= 0 {
 				return i + 2, data[0 : i+2], nil
+			} else {
+				return 0, nil, nil
 			}
 		}
 		// tokenize by splitting with spaces, parentheses, or semicolon

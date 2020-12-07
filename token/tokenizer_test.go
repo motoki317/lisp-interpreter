@@ -90,6 +90,13 @@ func TestTokenizer(t *testing.T) {
 				{Type: Word, String: "po"},
 			},
 		},
+		{
+			name:   "string unexpected EOF",
+			string: "po \"po",
+			want: []Token{
+				{Type: Word, String: "po"},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
