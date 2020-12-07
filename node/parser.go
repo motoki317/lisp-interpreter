@@ -97,7 +97,7 @@ func (p *Parser) Next() (*Node, error) {
 		if s == "'" {
 			next, err := p.Next()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("an error occurred while parsing quote: %v", err)
 			}
 			return &Node{
 				Type: Branch,
@@ -157,7 +157,7 @@ func (p *Parser) Next() (*Node, error) {
 		for {
 			_, stop, err := p.consume(token.RightPar)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("an error occurred while parsing node: %v", err)
 			}
 			if stop {
 				return node, nil
@@ -165,7 +165,7 @@ func (p *Parser) Next() (*Node, error) {
 
 			child, err := p.Next()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("an error occurred while parsing node: %v", err)
 			}
 			node.Children = append(node.Children, child)
 		}
