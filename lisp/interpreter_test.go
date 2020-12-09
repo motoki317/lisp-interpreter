@@ -21,8 +21,8 @@ func TestInterpreter(t *testing.T) {
 				"334",
 			},
 			outputs: []string{
-				"42\n",
-				"334\n",
+				"42",
+				"334",
 			},
 		},
 		{
@@ -35,11 +35,11 @@ func TestInterpreter(t *testing.T) {
 				"(+ 1 2 (- 3 (* 4 5 (/ 10 5) 6) 7) 8 9)",
 			},
 			outputs: []string{
-				"3\n",
-				"5\n",
-				"300\n",
-				"6\n",
-				"-224\n",
+				"3",
+				"5",
+				"300",
+				"6",
+				"-224",
 			},
 		},
 		{
@@ -50,9 +50,7 @@ func TestInterpreter(t *testing.T) {
 				"(* xx po xx)",
 			},
 			outputs: []string{
-				"",
-				"",
-				"20\n",
+				"20",
 			},
 		},
 		{
@@ -62,8 +60,8 @@ func TestInterpreter(t *testing.T) {
 				"((lambda (x) (* x 2)) 2)",
 			},
 			outputs: []string{
-				"<function>\n",
-				"4\n",
+				"<function>",
+				"4",
 			},
 		},
 		{
@@ -75,10 +73,9 @@ func TestInterpreter(t *testing.T) {
 				"(double 5)",
 			},
 			outputs: []string{
-				"",
-				"<function>\n",
-				"6\n",
-				"10\n",
+				"<function>",
+				"6",
+				"10",
 			},
 		},
 		{
@@ -90,10 +87,9 @@ func TestInterpreter(t *testing.T) {
 				"(double 5)",
 			},
 			outputs: []string{
-				"",
-				"<function>\n",
-				"6\n",
-				"10\n",
+				"<function>",
+				"6",
+				"10",
 			},
 		},
 		{
@@ -110,15 +106,15 @@ func TestInterpreter(t *testing.T) {
 				"(not (= 0 1))",
 			},
 			outputs: []string{
-				"#t\n",
-				"#f\n",
-				"#t\n",
-				"#t\n",
-				"#f\n",
-				"#t\n",
-				"#t\n",
-				"#f\n",
-				"#t\n",
+				"#t",
+				"#f",
+				"#t",
+				"#t",
+				"#f",
+				"#t",
+				"#t",
+				"#f",
+				"#t",
 			},
 		},
 		{
@@ -132,12 +128,12 @@ func TestInterpreter(t *testing.T) {
 				"(or #f 5)",
 			},
 			outputs: []string{
-				"#t\n",
-				"#f\n",
-				"4\n",
-				"#f\n",
-				"#t\n",
-				"5\n",
+				"#t",
+				"#f",
+				"4",
+				"#f",
+				"#t",
+				"5",
 			},
 		},
 		{
@@ -148,9 +144,8 @@ func TestInterpreter(t *testing.T) {
 				"(my-div 10 0)",
 			},
 			outputs: []string{
-				"",
-				"2\n",
-				"0\n",
+				"2",
+				"0",
 			},
 		},
 		{
@@ -165,10 +160,9 @@ func TestInterpreter(t *testing.T) {
 				"(sign -100)",
 			},
 			outputs: []string{
-				"",
-				"1\n",
-				"0\n",
-				"-1\n",
+				"1",
+				"0",
+				"-1",
 			},
 		},
 		{
@@ -186,10 +180,8 @@ func TestInterpreter(t *testing.T) {
 				"(let-test-2 1)",
 			},
 			outputs: []string{
-				"",
-				"",
-				"6\n",
-				"8\n",
+				"6",
+				"8",
 			},
 		},
 		{
@@ -203,12 +195,12 @@ func TestInterpreter(t *testing.T) {
 				"(cadr (cons 1 (cons 2 3)))",
 			},
 			outputs: []string{
-				"(1 . 2)\n",
-				"(1 2 . 3)\n",
-				"((1 . 2) . 3)\n",
-				"1\n",
-				"2\n",
-				"2\n",
+				"(1 . 2)",
+				"(1 2 . 3)",
+				"((1 . 2) . 3)",
+				"1",
+				"2",
+				"2",
 			},
 		},
 		{
@@ -225,15 +217,15 @@ func TestInterpreter(t *testing.T) {
 				"(cadadr '(define (xx po) (po)))",
 			},
 			outputs: []string{
-				"po\n",
-				"po\n",
-				"()\n",
-				"(1 2 3)\n",
-				"3\n",
-				"(1 . 2)\n",
-				"2\n",
-				"(define (xx po) (po))\n",
-				"po\n",
+				"po",
+				"po",
+				"()",
+				"(1 2 3)",
+				"3",
+				"(1 . 2)",
+				"2",
+				"(define (xx po) (po))",
+				"po",
 			},
 		},
 		{
@@ -245,10 +237,8 @@ func TestInterpreter(t *testing.T) {
 				"po",
 			},
 			outputs: []string{
-				"",
-				"20\n",
-				"",
-				"50\n",
+				"20",
+				"50",
 			},
 		},
 		{
@@ -262,12 +252,9 @@ func TestInterpreter(t *testing.T) {
 				"p",
 			},
 			outputs: []string{
-				"",
-				"(1 . 2)\n",
-				"",
-				"(3 . 2)\n",
-				"",
-				"(3 . 4)\n",
+				"(1 . 2)",
+				"(3 . 2)",
+				"(3 . 4)",
 			},
 		},
 		{
@@ -283,12 +270,12 @@ func TestInterpreter(t *testing.T) {
 				"(f 1 2 3 4 5)",
 			},
 			outputs: []string{
-				"()\n",
-				"(1)\n",
-				"(1 2 3 4 5)\n",
-				"()\n",
-				"(1)\n",
-				"(1 2 3 4 5)\n",
+				"()",
+				"(1)",
+				"(1 2 3 4 5)",
+				"()",
+				"(1)",
+				"(1 2 3 4 5)",
 			},
 		},
 		{
@@ -304,12 +291,12 @@ func TestInterpreter(t *testing.T) {
 				"(f 1 2 3 4 5)",
 			},
 			outputs: []string{
-				"(1 2 ())\n",
-				"(1 2 (3))\n",
-				"(1 2 (3 4 5))\n",
-				"(1 2 ())\n",
-				"(1 2 (3))\n",
-				"(1 2 (3 4 5))\n",
+				"(1 2 ())",
+				"(1 2 (3))",
+				"(1 2 (3 4 5))",
+				"(1 2 ())",
+				"(1 2 (3))",
+				"(1 2 (3 4 5))",
 			},
 		},
 	}
@@ -321,7 +308,7 @@ func TestInterpreter(t *testing.T) {
 			interpreter := NewInterpreter(node.NewParser(token.NewTokenizer(strings.NewReader(strings.Join(tt.inputs, "\n")))), out, false, 0)
 			interpreter.ReadLoop()
 
-			expectOut := strings.Join(tt.outputs, "")
+			expectOut := strings.Join(tt.outputs, "\n") + "\n"
 
 			if gotOut := out.String(); gotOut != expectOut {
 				t.Errorf("gotOut %v, want %v", gotOut, expectOut)
