@@ -270,6 +270,48 @@ func TestInterpreter(t *testing.T) {
 				"(3 . 4)\n",
 			},
 		},
+		{
+			name: "variadic length functions 1",
+			inputs: []string{
+				"(define f (lambda x x))",
+				"(f)",
+				"(f 1)",
+				"(f 1 2 3 4 5)",
+				"(define (f . x) x)",
+				"(f)",
+				"(f 1)",
+				"(f 1 2 3 4 5)",
+			},
+			outputs: []string{
+				"()\n",
+				"(1)\n",
+				"(1 2 3 4 5)\n",
+				"()\n",
+				"(1)\n",
+				"(1 2 3 4 5)\n",
+			},
+		},
+		{
+			name: "variadic length functions 2",
+			inputs: []string{
+				"(define f (lambda (x y . z) (list x y z)))",
+				"(f 1 2)",
+				"(f 1 2 3)",
+				"(f 1 2 3 4 5)",
+				"(define (f x y . z) (list x y z))",
+				"(f 1 2)",
+				"(f 1 2 3)",
+				"(f 1 2 3 4 5)",
+			},
+			outputs: []string{
+				"(1 2 ())\n",
+				"(1 2 (3))\n",
+				"(1 2 (3 4 5))\n",
+				"(1 2 ())\n",
+				"(1 2 (3))\n",
+				"(1 2 (3 4 5))\n",
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

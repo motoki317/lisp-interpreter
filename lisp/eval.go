@@ -165,7 +165,7 @@ func evalQuote(n *node.Node) object.Object {
 	if len(n.Children) == 0 {
 		return object.NullObj
 	}
-	if len(n.Children) == 3 && n.Children[1].Type == node.Identifier && n.Children[1].Str == "." {
+	if len(n.Children) == 3 && n.Children[1].Type == node.Keyword && n.Children[1].Str == "." {
 		return object.NewConsObject(
 			evalQuote(n.Children[0]),
 			evalQuote(n.Children[2]))
@@ -187,21 +187,37 @@ func evalDefine(n *node.Node, e *object.Env) object.Object {
 			return object.NewErrorObject("bad syntax: function definition requires function name")
 		}
 
-		// Rewrite AST and eval again
 		funcName := n.Children[1].Children[0]
 		argNames := n.Children[1].Children[1:]
 		sentences := n.Children[2:]
 
+		// specific define syntax sugar for variadic arguments function
+		// (define (func-name . x) ...)
+		// = (define func-name (lambda x ...))
+		if len(argNames) == 2 &&
+			argNames[0].Type == node.Keyword && argNames[0].Str == "." &&
+			argNames[1].Type == node.Identifier {
+			lambda := append([]*node.Node{
+				{Type: node.Keyword, Str: "lambda"},
+				argNames[1],
+			}, sentences...)
+			return evalDefine(&node.Node{Type: node.Branch, Children: []*node.Node{
+				{Type: node.Keyword, Str: "define"},
+				funcName,
+				{Type: node.Branch, Children: lambda},
+			}}, e)
+		}
+
+		// Rewrite AST and eval again
 		lambda := append([]*node.Node{
 			{Type: node.Keyword, Str: "lambda"},
 			{Type: node.Branch, Children: argNames},
 		}, sentences...)
-		return evalWithTailOptimization(&node.Node{Type: node.Branch, Children: []*node.Node{
+		return evalDefine(&node.Node{Type: node.Branch, Children: []*node.Node{
 			{Type: node.Keyword, Str: "define"},
 			funcName,
 			{Type: node.Branch, Children: lambda},
-		},
-		}, e)
+		}}, e)
 	}
 
 	// Normal define
@@ -223,18 +239,64 @@ func evalLambda(n *node.Node, e *object.Env) object.Object {
 	if len(n.Children) < 3 {
 		return object.NewErrorObject(fmt.Sprintf("bad syntax: lambda takes 2 or more arguments, but got %v", len(n.Children)-1))
 	}
+
+	sentences := n.Children[2:]
+
+	// Variadic length arguments
+	// (lambda x ...)
+	if n.Children[1].Type == node.Identifier {
+		lstName := n.Children[1].Str
+		return object.NewFunctionObject(func(objects []object.Object) (object.Object, *node.Node, *object.Env) {
+			newEnv := e.NewEnv(object.EmptyFrame())
+			newEnv.Define(lstName, list(objects))
+			for _, sentence := range sentences[:len(sentences)-1] {
+				evalWithTailOptimization(sentence, newEnv)
+			}
+			return nil, sentences[len(sentences)-1], newEnv
+		})
+	}
+
 	if n.Children[1].Type != node.Branch {
 		return object.NewErrorObject(fmt.Sprintf("bad syntax: 1st argument of lambda needs to be a list of arguments, but got %v", n.Children[1]))
 	}
+	inputArgs := n.Children[1].Children
 
-	argNames := make([]string, len(n.Children[1].Children))
-	for i, arg := range n.Children[1].Children {
+	// Variadic length arguments with leading arguments
+	// (lambda (x y . z) ...)
+	if len(inputArgs) >= 3 &&
+		inputArgs[len(inputArgs)-2].Type == node.Keyword &&
+		inputArgs[len(inputArgs)-2].Str == "." &&
+		inputArgs[len(inputArgs)-1].Type == node.Identifier {
+		argNames := make([]string, len(inputArgs)-2)
+		for i := range argNames {
+			if inputArgs[i].Type != node.Identifier {
+				return object.NewErrorObject(fmt.Sprintf("bad syntax: expected %v-th argument of lambda function to be identifier, but got %v", i, inputArgs[i].Type))
+			}
+			argNames[i] = inputArgs[i].Str
+		}
+		lstName := inputArgs[len(inputArgs)-1].Str
+		return object.NewFunctionObject(func(objects []object.Object) (object.Object, *node.Node, *object.Env) {
+			if len(objects) < len(argNames) {
+				return object.NewErrorObject(fmt.Sprintf("expected length of arguments to be greater than or equal to %v, but got %v", len(argNames), len(objects))), nil, nil
+			}
+			newEnv := e.NewEnv(object.NewBindingFrame(argNames, objects[:len(argNames)]))
+			newEnv.Define(lstName, list(objects[len(argNames):]))
+			for _, sentence := range sentences[:len(sentences)-1] {
+				evalWithTailOptimization(sentence, newEnv)
+			}
+			return nil, sentences[len(sentences)-1], newEnv
+		})
+	}
+
+	// Normal define
+	// (lambda (x y z) ...)
+	argNames := make([]string, len(inputArgs))
+	for i, arg := range inputArgs {
 		if arg.Type != node.Identifier {
 			return object.NewErrorObject(fmt.Sprintf("bad syntax: expected %v-th argument of lambda function to be identifier, but got %v", i, arg.Type))
 		}
 		argNames[i] = arg.Str
 	}
-	sentences := n.Children[2:]
 	return object.NewFunctionObject(func(objects []object.Object) (object.Object, *node.Node, *object.Env) {
 		if len(objects) != len(argNames) {
 			return object.NewErrorObject(fmt.Sprintf("expected length of arguments to be %v, but got %v", len(argNames), len(objects))), nil, nil
