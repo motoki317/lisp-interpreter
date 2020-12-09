@@ -138,10 +138,9 @@ func evalSet(n *node.Node, e *object.Env) object.Object {
 	}
 	key := n.Children[1].Str
 	value := evalWithTailOptimization(n.Children[2], e)
-	if _, ok := e.Lookup(key); !ok {
+	if ok := e.Set(key, value); !ok {
 		return object.NewErrorObject(fmt.Sprintf("set!: %v is not defined yet", key))
 	}
-	e.Define(key, value)
 	return object.VoidObj
 }
 

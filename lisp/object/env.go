@@ -21,18 +21,23 @@ func (e *Env) NewEnv(newFrame Frame) *Env {
 	}
 }
 
-// Define adds or overrides a key value pair in this Env.
+// Define adds a key value pair in the top Frame.
 func (e *Env) Define(key string, value Object) {
+	e.frame[key] = value
+}
+
+// Set overrides a key value pair in this Env.
+// Returns false if the key isn't this Env.
+func (e *Env) Set(key string, value Object) (ok bool) {
 	cur := e
 	for cur != nil {
 		if _, ok := cur.frame[key]; ok {
 			cur.frame[key] = value
-			return
+			return true
 		}
 		cur = cur.upper
 	}
-	// no match, so define a new key-value pair to the top frame
-	e.frame[key] = value
+	return false
 }
 
 // Lookup looks up for the key in this Env.
