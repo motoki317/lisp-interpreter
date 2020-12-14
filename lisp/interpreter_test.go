@@ -308,20 +308,18 @@ func TestInterpreter(t *testing.T) {
 				"(define-syntax for (syntax-rules () ((_ (i from to) b1 ...) (begin (define (loop i) (when (< i to) b1 ... (loop (+ i 1)))) (loop from)))))",
 				"(define-syntax inc! (syntax-rules () ((_ x) (begin (set! x (+ x 1)) x)) ((_ x i) (begin (set! x (+ x i)) x))))",
 				"(when #f (/ 1 0))", // no output
-				"(let ((i 0)) (while (< i 3) (display i) (set! i (+ i 1))))", // 0, 1, 2
-				"(for (i 0 3) (display i))",                                  // 0, 1, 2
+				"(let ((i 0)) (while (< i 3) (display i) (set! i (+ i 1))))", // 012
+				"(newline)",
+				"(for (i 0 3) (display i))", // 012
+				"(newline)",
 				"(define i 0)",
 				"(inc! i)",   // 1
 				"(inc! i 3)", // 4
 				"i",          // 4
 			},
 			outputs: []string{
-				"0",
-				"1",
-				"2",
-				"0",
-				"1",
-				"2",
+				"012",
+				"012",
 				"1",
 				"4",
 				"4",

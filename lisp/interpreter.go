@@ -31,11 +31,16 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool, timeout time.Du
 	}
 	global["display"] = object.NewWrappedFunctionObject(
 		makeUnary(func(objects []object.Object) object.Object {
-			i.printf("%v\n", objects[0])
+			i.printf("%v", objects[0])
+			return object.VoidObj
+		}))
+	global["newline"] = object.NewWrappedFunctionObject(
+		makeNullary(func(_ []object.Object) object.Object {
+			i.printf("\n")
 			return object.VoidObj
 		}))
 	global["read"] = object.NewWrappedFunctionObject(
-		makeNullary(func(objects []object.Object) object.Object {
+		makeNullary(func(_ []object.Object) object.Object {
 			n, err := i.p.Next()
 			if err == node.EOF {
 				return object.NewErrorObject("end of input")

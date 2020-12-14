@@ -33,6 +33,10 @@ func (n null) String() string {
 	return "()"
 }
 
+func (n null) Display() string {
+	return "()"
+}
+
 func (n null) IsList() bool {
 	// a null object is a list
 	return true

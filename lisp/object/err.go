@@ -37,6 +37,10 @@ func (e err) String() string {
 	return "error: " + string(e)
 }
 
+func (e err) Display() string {
+	return "error: " + string(e)
+}
+
 func (e err) IsList() bool {
 	return false
 }

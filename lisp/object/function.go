@@ -43,6 +43,10 @@ func (f function) String() string {
 	return "<function>"
 }
 
+func (f function) Display() string {
+	return "<function>"
+}
+
 func (f function) IsList() bool {
 	return false
 }

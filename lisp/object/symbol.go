@@ -37,6 +37,10 @@ func (s symbol) String() string {
 	return string(s)
 }
 
+func (s symbol) Display() string {
+	return string(s)
+}
+
 func (s symbol) IsList() bool {
 	return false
 }

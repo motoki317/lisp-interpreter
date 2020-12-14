@@ -33,21 +33,34 @@ func (c *cons) F(_ []Object) (Object, *node.Node, *Env) {
 	panic("F() called on cons object")
 }
 
-func (c *cons) stringStripPars() string {
-	ret := c[0].String()
+func (c *cons) stringStripPars(display bool) string {
+	var ret string
+	if display {
+		ret = c[0].String()
+	} else {
+		ret = c[0].Display()
+	}
 	switch c[1].Type() {
 	case object_type.Cons:
-		ret += " " + (c[1]).(*cons).stringStripPars()
+		ret += " " + (c[1]).(*cons).stringStripPars(display)
 	case object_type.Null:
 		// append none
 	default:
-		ret += " . " + c[1].String()
+		if display {
+			ret += " . " + c[1].Display()
+		} else {
+			ret += " . " + c[1].String()
+		}
 	}
 	return ret
 }
 
 func (c *cons) String() string {
-	return "(" + c.stringStripPars() + ")"
+	return "(" + c.stringStripPars(false) + ")"
+}
+
+func (c *cons) Display() string {
+	return "(" + c.stringStripPars(true) + ")"
 }
 
 func (c *cons) IsList() bool {

@@ -41,6 +41,14 @@ func (b boolean) String() string {
 	}
 }
 
+func (b boolean) Display() string {
+	if b {
+		return "#t"
+	} else {
+		return "#f"
+	}
+}
+
 func (b boolean) IsList() bool {
 	return false
 }

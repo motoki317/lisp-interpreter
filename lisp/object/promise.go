@@ -37,6 +37,10 @@ func (d *promise) String() string {
 	return "<promise>"
 }
 
+func (d *promise) Display() string {
+	return "<promise>"
+}
+
 func (d *promise) IsList() bool {
 	return false
 }

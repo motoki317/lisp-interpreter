@@ -22,6 +22,7 @@ type Object interface {
 	F(objects []Object) (Object, *node.Node, *Env)
 
 	String() string
+	Display() string
 
 	IsList() bool
 	ListElements() []Object

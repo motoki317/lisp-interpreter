@@ -38,6 +38,10 @@ func (n number) String() string {
 	return strconv.FormatFloat(float64(n), 'f', -1, 64)
 }
 
+func (n number) Display() string {
+	return strconv.FormatFloat(float64(n), 'f', -1, 64)
+}
+
 func (n number) IsList() bool {
 	return false
 }

@@ -37,6 +37,10 @@ func (s str) String() string {
 	return "\"" + string(s) + "\""
 }
 
+func (s str) Display() string {
+	return string(s)
+}
+
 func (s str) IsList() bool {
 	return false
 }

@@ -33,6 +33,10 @@ func (v void) String() string {
 	return "<void>"
 }
 
+func (v void) Display() string {
+	return ""
+}
+
 func (v void) IsList() bool {
 	return false
 }
