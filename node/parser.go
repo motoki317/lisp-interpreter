@@ -29,6 +29,10 @@ func init() {
 		"set!",
 		"begin",
 		".",
+		"_",
+		"define-syntax",
+		"syntax-rules",
+		"...",
 	}
 	keywords = make(map[string]bool, len(keywordsList))
 	for _, keyword := range keywordsList {

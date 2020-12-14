@@ -12,7 +12,7 @@ import (
 type Interpreter struct {
 	p         *node.Parser
 	out       io.Writer
-	globalEnv object.Frame
+	globalEnv *object.Env
 	cuiMode   bool
 	timeout   time.Duration
 }
@@ -25,7 +25,7 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool, timeout time.Du
 	i := &Interpreter{
 		p:         p,
 		out:       out,
-		globalEnv: global,
+		globalEnv: object.NewGlobalEnv(global),
 		cuiMode:   cuiMode,
 		timeout:   timeout,
 	}
@@ -49,7 +49,7 @@ func NewInterpreter(p *node.Parser, out io.Writer, cuiMode bool, timeout time.Du
 					{Type: node.Keyword, Str: "quote"},
 					n,
 				},
-			}, object.NewGlobalEnv(i.globalEnv))
+			}, i.globalEnv)
 		}))
 	return i
 }
@@ -81,6 +81,13 @@ func (i *Interpreter) evalNext() (res object.Object, cont bool, timedOut bool) {
 		return nil, true, false
 	}
 
+	// apply macro to the input
+	n, err = i.globalEnv.ApplyMacro(n)
+	if err != nil {
+		i.printf("An error occurred while applying macro: %v\n", err)
+		return nil, true, false
+	}
+
 	var stopper <-chan time.Time
 	if i.timeout != time.Duration(0) {
 		timer := time.NewTimer(i.timeout)
@@ -88,7 +95,7 @@ func (i *Interpreter) evalNext() (res object.Object, cont bool, timedOut bool) {
 		defer timer.Stop()
 	}
 
-	res, timedOut = evalWithStopper(n, object.NewGlobalEnv(i.globalEnv), stopper)
+	res, timedOut = evalWithStopper(n, i.globalEnv, stopper)
 	if timedOut {
 		return nil, true, true
 	} else {

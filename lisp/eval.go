@@ -2,6 +2,7 @@ package lisp
 
 import (
 	"fmt"
+	"github.com/motoki317/lisp-interpreter/lisp/macro"
 	"github.com/motoki317/lisp-interpreter/lisp/object"
 	"github.com/motoki317/lisp-interpreter/lisp/object/object_type"
 	"github.com/motoki317/lisp-interpreter/node"
@@ -321,6 +322,15 @@ func evalBegin(n *node.Node, env *object.Env) (object.Object, *node.Node, *objec
 	return nil, sentences[len(sentences)-1], env
 }
 
+func evalMacro(n *node.Node, e *object.Env) object.Object {
+	m, err := macro.NewMacro(n)
+	if err != nil {
+		return object.NewErrorObject("bad macro syntax: " + err.Error())
+	}
+	e.DefineGlobalMacro(m)
+	return object.VoidObj
+}
+
 // eval evaluates the given node, and returns the result obj, nil continuation, and nil newEnv.
 // Otherwise, returns nil, continuation node, and newEnv to evaluate with for tail call optimization.
 func eval(n *node.Node, e *object.Env) (obj object.Object, continuation *node.Node, newEnv *object.Env) {
@@ -379,6 +389,8 @@ func eval(n *node.Node, e *object.Env) (obj object.Object, continuation *node.No
 		case "begin":
 			// begin is not technically special form, but for tail optimization
 			return evalBegin(n, e)
+		case "define-syntax":
+			return evalMacro(n, e), nil, nil
 		}
 	}
 

@@ -2,6 +2,7 @@ package node
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -29,6 +30,22 @@ const (
 	// String String constant
 	String
 )
+
+func (t Type) String() string {
+	switch t {
+	case Branch:
+		return "branch"
+	case Keyword:
+		return "keyword"
+	case Identifier:
+		return "identifier"
+	case Number:
+		return "number"
+	case String:
+		return "string"
+	}
+	return strconv.Itoa(int(t))
+}
 
 func (n Node) String() string {
 	switch n.Type {
