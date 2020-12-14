@@ -33,6 +33,7 @@ func init() {
 		"define-syntax",
 		"syntax-rules",
 		"...",
+		"delay",
 	}
 	keywords = make(map[string]bool, len(keywordsList))
 	for _, keyword := range keywordsList {

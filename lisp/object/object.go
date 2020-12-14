@@ -16,7 +16,7 @@ type Object interface {
 	Number() float64
 	Bool() bool
 	Pair() *[2]Object
-	// Str returns string data if type is symbol of Str.
+	// Str returns string data if type is symbol or str.
 	// Panics otherwise.
 	Str() string
 	F(objects []Object) (Object, *node.Node, *Env)
@@ -38,5 +38,9 @@ type (
 	null     struct{}
 	void     struct{}
 	function func(objects []Object) (Object, *node.Node, *Env)
-	err      string
+	promise  struct {
+		n *node.Node
+		e *Env
+	}
+	err string
 )

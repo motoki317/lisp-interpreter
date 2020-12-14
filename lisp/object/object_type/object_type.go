@@ -13,6 +13,7 @@ const (
 	Null
 	Void
 	Function
+	Promise
 	Err
 )
 
@@ -34,6 +35,8 @@ func (t T) String() string {
 		return "void"
 	case Function:
 		return "function"
+	case Promise:
+		return "promise"
 	case Err:
 		return "error"
 	}

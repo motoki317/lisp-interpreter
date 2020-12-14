@@ -272,6 +272,17 @@ func init() {
 			return list(elements)
 		}))
 
+	defaultEnv["force"] = object.NewFunctionObject(func(objects []object.Object) (object.Object, *node.Node, *object.Env) {
+		if len(objects) != 1 {
+			return object.NewErrorObject(fmt.Sprintf("force needs exactly 1 argument, but got %v", len(objects))), nil, nil
+		}
+		o := objects[0]
+		if o.Type() != object_type.Promise {
+			return object.NewErrorObject(fmt.Sprintf("force takes promise object as argument, but got %v", o.Type())), nil, nil
+		}
+		return o.F(nil)
+	})
+
 	defaultEnv["symbol->string"] = object.NewWrappedFunctionObject(
 		makeUnary(func(objects []object.Object) object.Object {
 			o := objects[0]

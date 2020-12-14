@@ -331,6 +331,14 @@ func evalMacro(n *node.Node, e *object.Env) object.Object {
 	return object.VoidObj
 }
 
+func evalDelay(n *node.Node, e *object.Env) object.Object {
+	if len(n.Children) != 2 {
+		return object.NewErrorObject(fmt.Sprintf("delay needs exactly 1 argument, but got %v", len(n.Children)-1))
+	}
+	toDelay := n.Children[1]
+	return object.NewPromiseObject(toDelay, e)
+}
+
 // eval evaluates the given node, and returns the result obj, nil continuation, and nil newEnv.
 // Otherwise, returns nil, continuation node, and newEnv to evaluate with for tail call optimization.
 func eval(n *node.Node, e *object.Env) (obj object.Object, continuation *node.Node, newEnv *object.Env) {
@@ -391,6 +399,8 @@ func eval(n *node.Node, e *object.Env) (obj object.Object, continuation *node.No
 			return evalBegin(n, e)
 		case "define-syntax":
 			return evalMacro(n, e), nil, nil
+		case "delay":
+			return evalDelay(n, e), nil, nil
 		}
 	}
 
