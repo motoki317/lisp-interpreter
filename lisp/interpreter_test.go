@@ -327,6 +327,24 @@ func TestInterpreter(t *testing.T) {
 				"4",
 			},
 		},
+		{
+			name: "promise / stream",
+			inputs: []string{
+				"(define-syntax s-cons (syntax-rules () ((_ a b) (cons a (delay b)))))",
+				"(define (s-car s) (car s))",
+				"(define (s-cdr s) (force (cdr s)))",
+				"(define (s-null? s) (null? s))",
+				"(define (s-head s n) (cond ((s-null? s) '()) ((<= n 0) '()) (else (cons (s-car s) (s-head (s-cdr s) (- n 1))))))",
+				"(define (integers-from n) (s-cons n (integers-from (+ n 1))))",
+				"(define integers* (integers-from 1))",
+				"(s-head integers* 10)",
+				"(s-head integers* 5)",
+			},
+			outputs: []string{
+				"(1 2 3 4 5 6 7 8 9 10)",
+				"(1 2 3 4 5)",
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
